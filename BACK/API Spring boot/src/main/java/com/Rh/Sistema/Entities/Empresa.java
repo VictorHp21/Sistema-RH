@@ -1,12 +1,11 @@
 package com.Rh.Sistema.Entities;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 
 import java.util.List;
 
+@Entity
+@Table(name = "Empresas")
 public class Empresa {
 
     @Id
@@ -15,6 +14,8 @@ public class Empresa {
 
     private String nome;
     private String cnpj;
+
+    private Boolean status;
 
 
 
@@ -29,9 +30,10 @@ public class Empresa {
 
     public Empresa(){}
 
-    public Empresa(String nome, String cnpj) {
+    public Empresa(String nome, String cnpj, Boolean status) {
         this.nome = nome;
         this.cnpj = cnpj;
+        this.status = status;
     }
 
     public long getId() {
