@@ -2,6 +2,7 @@ package com.Rh.Sistema.Controllers;
 
 import com.Rh.Sistema.Entities.Empresa;
 import com.Rh.Sistema.Entities.Funcionario;
+import com.Rh.Sistema.Services.EmpresaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,13 +30,15 @@ public class EmpresaController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping
-    public List<Funcionario> listarFuncionarios(){
-        return service.listarFuncionarios();
+
+    @GetMapping("/{id}/funcionarios")
+    public List<Funcionario> listarFuncionarios(@PathVariable Long id){
+        return service.listarFuncionarios(id);
     }
 
 
     // em excluir colocar logica no service que so torne o status da empresa como inativo e n apague diretamente do banco
+    // ✅ feito
     @DeleteMapping("{id}")
     public String excluir(@PathVariable Long id){
         boolean removido = service.excluirEmpresa(id);

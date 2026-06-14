@@ -60,6 +60,14 @@ public class Empresa {
         this.cnpj = cnpj;
     }
 
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
+
     public List<Funcionario> getFuncionarios() {
         return funcionarios;
     }
