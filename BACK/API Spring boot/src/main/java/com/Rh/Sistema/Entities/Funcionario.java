@@ -44,7 +44,7 @@ public class Funcionario {
 
     public Funcionario(){}
 
-    public Funcionario(Integer idade, String cpf, Enum<Cargo> cargo, String nome, BigDecimal salario, Enum<Departamento> departamento, LocalDate dataDeContratacao, Boolean statusEmpregado, Empresa empresa) {
+    public Funcionario(Integer idade, String cpf, Cargo cargo, String nome, BigDecimal salario, Departamento departamento, LocalDate dataDeContratacao, Boolean statusEmpregado, Empresa empresa) {
         this.idade = idade;
         this.cpf = cpf;
         this.cargo = cargo;
@@ -84,12 +84,8 @@ public class Funcionario {
         this.cpf = cpf;
     }
 
-    public Enum<Cargo> getCargo() {
+    public Cargo getCargo() {
         return cargo;
-    }
-
-    public void setCargo(Enum<Cargo> cargo) {
-        this.cargo = cargo;
     }
 
     public String getNome() {
@@ -108,11 +104,15 @@ public class Funcionario {
         this.salario = salario;
     }
 
-    public Enum<Departamento> getDepartamento() {
+    public Departamento getDepartamento() {
         return departamento;
     }
 
-    public void setDepartamento(Enum<Departamento> departamento) {
+    public void setCargo(Cargo cargo) {
+        this.cargo = cargo;
+    }
+
+    public void setDepartamento(Departamento departamento) {
         this.departamento = departamento;
     }
 

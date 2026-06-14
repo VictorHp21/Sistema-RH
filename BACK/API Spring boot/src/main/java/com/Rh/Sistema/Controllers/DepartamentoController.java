@@ -18,9 +18,12 @@ public class DepartamentoController {
         this.service = service;
     }
 
-    @PostMapping
-    public Departamento cadastrar(@RequestBody Departamento departamento){
-        return service.cadastrar(departamento);
+    @PostMapping("/{empresaId}")
+    public Departamento cadastrar(
+            @PathVariable Long empresaId,
+            @RequestBody Departamento departamento){
+
+        return service.cadastrar(empresaId, departamento);
     }
 
     @GetMapping

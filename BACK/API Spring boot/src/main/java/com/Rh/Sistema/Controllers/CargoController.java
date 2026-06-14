@@ -16,9 +16,9 @@ public class CargoController {
         this.service = service;
     }
 
-    @PostMapping
-    public Cargo cadastrar(@RequestBody Cargo cargo){
-        return service.cadastrar(cargo);
+    @PostMapping("/{empresaId}")
+    public Cargo cadastrar(@PathVariable Long empresaId, @RequestBody Cargo cargo){
+        return service.cadastrar(empresaId, cargo);
     }
 
     @GetMapping
