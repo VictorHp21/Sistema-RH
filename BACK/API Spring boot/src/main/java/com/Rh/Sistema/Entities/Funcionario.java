@@ -15,7 +15,13 @@ public class Funcionario {
 
     private Integer idade;
     private String cpf;
-    private Enum<Cargo> cargo;
+
+    @ManyToOne
+    @JoinColumn(name = "cargo_id")
+    private Cargo cargo;
+
+
+
     private String nome;
 
     //Utilizar decimal para evitar imprecisões
@@ -24,7 +30,9 @@ public class Funcionario {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal salario;
 
-    private Enum<Departamento> departamento;
+    @ManyToOne
+    @JoinColumn(name = "departamento_id")
+    private Departamento departamento;
 
     private LocalDate dataDeContratacao;
     private Boolean statusEmpregado;
