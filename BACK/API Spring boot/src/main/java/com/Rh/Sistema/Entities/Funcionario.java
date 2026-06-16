@@ -20,6 +20,9 @@ public class Funcionario {
     @JoinColumn(name = "cargo_id")
     private Cargo cargo;
 
+    @ManyToOne
+    @JoinColumn(name = "departamento_id")
+    private Departamento departamento;
 
 
     private String nome;
@@ -30,9 +33,7 @@ public class Funcionario {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal salario;
 
-    @ManyToOne
-    @JoinColumn(name = "departamento_id")
-    private Departamento departamento;
+
 
     private LocalDate dataDeContratacao;
     private Boolean statusEmpregado;

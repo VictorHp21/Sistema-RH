@@ -28,6 +28,12 @@ public class Empresa {
     @OneToMany(mappedBy = "empresa")
     private List<UserRH> usuariosRH;
 
+    @OneToMany(mappedBy = "empresa")
+    private List<Cargo> cargos;
+
+    @OneToMany(mappedBy = "empresa")
+    private List<Departamento> departamentos;
+
     public Empresa(){}
 
     public Empresa(String nome, String cnpj, Boolean status) {
