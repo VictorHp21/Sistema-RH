@@ -89,4 +89,20 @@ public class Empresa {
     public void setUsuariosRH(List<UserRH> usuariosRH) {
         this.usuariosRH = usuariosRH;
     }
+
+    public List<Cargo> getCargos() {
+        return cargos;
+    }
+
+    public void setCargos(List<Cargo> cargos) {
+        this.cargos = cargos;
+    }
+
+    public List<Departamento> getDepartamentos() {
+        return departamentos;
+    }
+
+    public void setDepartamentos(List<Departamento> departamentos) {
+        this.departamentos = departamentos;
+    }
 }
