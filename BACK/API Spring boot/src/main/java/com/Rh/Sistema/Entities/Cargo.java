@@ -1,5 +1,6 @@
 package com.Rh.Sistema.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -13,6 +14,8 @@ public class Cargo {
     private String nome;
 
     @ManyToOne
+    @JoinColumn(name = "empresa_id")
+    @JsonIgnore
     private Empresa empresa;
 
 

@@ -31,6 +31,8 @@ public class EmpresaController {
     }
 
 
+
+
     @GetMapping("/{id}/funcionarios")
     public List<Funcionario> listarFuncionarios(@PathVariable Long id){
         return service.listarFuncionarios(id);
