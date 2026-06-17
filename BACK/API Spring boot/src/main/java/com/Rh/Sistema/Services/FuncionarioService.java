@@ -1,11 +1,16 @@
 package com.Rh.Sistema.Services;
 
 
+import com.Rh.Sistema.Configuration.TesteConexaoBD;
 import com.Rh.Sistema.DTOs.FuncionarioDTO;
+import com.Rh.Sistema.DTOs.TempoEmpresaDTO;
 import com.Rh.Sistema.Entities.*;
 import com.Rh.Sistema.Repositories.*;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 
@@ -154,5 +159,45 @@ public class FuncionarioService {
     }
     *
      */
+
+    //Regras de negocio
+
+    public Funcionario aumentarSalario(Long id, BigDecimal valor){
+
+
+        Funcionario funcionarioExiste = buscarFuncionario(id);
+
+        if (valor.compareTo(BigDecimal.ZERO) < 0){
+            throw new RuntimeException("Valor negativo");
+        }
+
+        BigDecimal aumento = funcionarioExiste.getSalario().add(valor);
+
+        funcionarioExiste.setSalario(aumento);
+
+        return funcionarioRepository.save(funcionarioExiste);
+
+    }
+
+    public TempoEmpresaDTO calcularTempoEmpresa(Long id){
+
+        Funcionario funcionarioExiste = buscarFuncionario(id);
+
+        LocalDate hoje = LocalDate.now();
+
+        Period tempoDeEmpresa = Period.between(funcionarioExiste.getDataDeContratacao(), hoje);
+
+        TempoEmpresaDTO dto = new TempoEmpresaDTO();
+
+        dto.setFuncionario(funcionarioExiste.getNome());
+        dto.setAnos(tempoDeEmpresa.getYears());
+        dto.setMeses(tempoDeEmpresa.getMonths());
+        dto.setDias(tempoDeEmpresa.getDays());
+
+        return dto;
+    }
+
+    // adicionar mais métodos conforme necessário
+
 
 }

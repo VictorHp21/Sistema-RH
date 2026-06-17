@@ -88,6 +88,8 @@ public class EmpresaService {
 
     }
 
+
+    // Alterar para retornar um DTO
     public StringBuilder gerarRelatorioFolhaSalarial(Long id){
 
         Empresa empresaExiste = buscarEmpresa(id);
