@@ -2,11 +2,13 @@ package com.Rh.Sistema.Controllers;
 
 
 import com.Rh.Sistema.DTOs.FuncionarioDTO;
+import com.Rh.Sistema.DTOs.TempoEmpresaDTO;
 import com.Rh.Sistema.Entities.Funcionario;
 import com.Rh.Sistema.Services.FuncionarioService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -62,4 +64,16 @@ public class FuncionarioController {
     }
 
      */
+
+    @PutMapping("{id}/valorAumento")
+    public ResponseEntity<Funcionario> aumentarSalario(@PathVariable Long id, @RequestBody BigDecimal valor){
+        return ResponseEntity.ok(service.aumentarSalario(id, valor));
+    }
+
+    @GetMapping("{id}/calcularTempoEmpresa")
+    public ResponseEntity<TempoEmpresaDTO> calcularTempoEmpresa(@PathVariable Long id){
+        return ResponseEntity.ok(service.calcularTempoEmpresa(id));
+    }
+
+    
 }

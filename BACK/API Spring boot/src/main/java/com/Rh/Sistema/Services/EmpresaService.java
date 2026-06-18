@@ -1,5 +1,6 @@
 package com.Rh.Sistema.Services;
 
+import com.Rh.Sistema.DTOs.RelatorioFolhaSalarioDTO;
 import com.Rh.Sistema.Entities.Empresa;
 import com.Rh.Sistema.Entities.Funcionario;
 import com.Rh.Sistema.Repositories.EmpresaRepository;
@@ -84,40 +85,25 @@ public class EmpresaService {
             folhaDePagamento = folhaDePagamento.add(f.getSalario());
         }
 
-        return folhaDePagamento;
+        return folhaDePagamento; // retorna o total da folha de pagamento
 
     }
 
 
     // Alterar para retornar um DTO
-    public StringBuilder gerarRelatorioFolhaSalarial(Long id){
+    public RelatorioFolhaSalarioDTO gerarRelatorioFolhaSalarial(Long id){
 
         Empresa empresaExiste = buscarEmpresa(id);
 
-        StringBuilder relatorio = new StringBuilder();
+        RelatorioFolhaSalarioDTO dto = new RelatorioFolhaSalarioDTO();
+
+        dto.setNomeEmpresa(empresaExiste.getNome());
+        dto.setCnpjEmpresa(empresaExiste.getCnpj());
+        dto.setFuncionariosEmpresa(empresaExiste.getFuncionarios());
+        dto.setTotalFolhaDePagamento(calcularFolhaDepagamento(empresaExiste.getId()));
 
 
-        relatorio.append("\n===== FOLHA SALARIAL =====\n");
-        relatorio.append("Empresa: ").append(empresaExiste.getNome()).append("\n");
-        relatorio.append("CNPJ: ").append(empresaExiste.getCnpj()).append("\n\n");
-
-        BigDecimal totalFolha = BigDecimal.valueOf(0.0);
-
-        for (Funcionario f : funcionariosEmpresa(id)) {
-            relatorio.append("Funcionário: ")
-                    .append(f.getNome())
-                    .append(" | Salário: R$ ")
-                    .append(String.format("%.2f", f.getSalario()))
-                    .append("\n");
-
-            totalFolha = totalFolha.add(f.getSalario());
-        }
-
-        relatorio.append("\n-------------------------\n");
-        relatorio.append("Total da folha salarial: R$ ")
-                .append(String.format("%.2f", totalFolha));
-
-        return relatorio;
+        return dto;
 
     }
 
@@ -137,7 +123,7 @@ public class EmpresaService {
 
         Funcionario funcionarioMaiorSalario = funcionarios.get(0);
 
-        StringBuilder relatorioMaiorSalarioFuncionario = new StringBuilder("");
+
 
         for (Funcionario f: funcionarios){
 
@@ -172,7 +158,6 @@ public class EmpresaService {
 
         Funcionario funcionarioMenorSalario = funcionarios.get(0);
 
-        StringBuilder relatorioMenorSalarioFuncionario = new StringBuilder("");
 
         for (Funcionario f: funcionarios){
 
