@@ -75,5 +75,5 @@ public class FuncionarioController {
         return ResponseEntity.ok(service.calcularTempoEmpresa(id));
     }
 
-    
+
 }

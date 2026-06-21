@@ -59,4 +59,12 @@ public class UserRH {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public Empresa getEmpresa() {
+        return empresa;
+    }
+
+    public void setEmpresa(Empresa empresa) {
+        this.empresa = empresa;
+    }
 }
