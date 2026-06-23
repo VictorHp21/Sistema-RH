@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RH System — Acesso</title>
+  <link rel="stylesheet" href="../estilos/main.css" />
+  <link rel="stylesheet" href="../estilos/login.css" />
+</head>
+<body class="login-body">
+
+  <!-- Background orbs -->
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+  <div class="grid-bg"></div>
+
+  <div class="auth-shell">
+    <!-- LEFT PANEL -->
+    <div class="auth-left">
+      <div class="auth-left-inner">
+        <div class="brand-mark">
+          <div class="brand-icon">⚡</div>
+          <span class="brand-name">RH<span class="brand-accent">System</span></span>
+        </div>
+        <div class="hero-copy">
+          <h1 class="hero-title">Gestão de pessoas<br><span class="gradient-text">inteligente</span></h1>
+          <p class="hero-desc">Centralize funcionários, departamentos e toda a gestão do seu RH em um único lugar moderno.</p>
+        </div>
+        <div class="feature-list stagger">
+          <div class="feature-item">
+            <div class="feature-dot"></div>
+            <span>Múltiplas empresas, identidades separadas</span>
+          </div>
+          <div class="feature-item">
+            <div class="feature-dot"></div>
+            <span>Paleta de cores e logo personalizados</span>
+          </div>
+          <div class="feature-item">
+            <div class="feature-dot"></div>
+            <span>Gestão completa de funcionários</span>
+          </div>
+          <div class="feature-item">
+            <div class="feature-dot"></div>
+            <span>Relatórios e dashboards em tempo real</span>
+          </div>
+        </div>
+        <div class="companies-preview" id="companies-preview">
+          <div class="preview-label">Empresas cadastradas</div>
+          <div class="preview-list" id="preview-companies-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="auth-right">
+      <div class="auth-card animate-scale">
+        <!-- TABS -->
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">
+            Entrar
+          </button>
+          <button class="auth-tab" id="tab-register" onclick="switchTab('register')">
+            Criar conta
+          </button>
+          <div class="tab-indicator" id="tab-indicator"></div>
+        </div>
+
+        <!-- ===== LOGIN FORM ===== -->
+        <div id="form-login" class="auth-form">
+          <div class="form-intro">
+            <h2 class="form-title">Bem-vindo de volta</h2>
+            <p class="form-desc">Faça login na sua conta</p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">E-mail</label>
+            <input type="email" id="login-email" class="form-input" placeholder="seu@email.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Senha</label>
+            <div class="input-pass-wrap">
+              <input type="password" id="login-pass" class="form-input" placeholder="••••••••" />
+              <button type="button" class="pass-toggle" onclick="togglePass('login-pass', this)">👁</button>
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-full btn-lg mt-4" onclick="handleLogin()">
+            <span id="login-btn-text">Entrar na conta</span>
+            <span id="login-spinner" class="btn-spinner" style="display:none">⟳</span>
+          </button>
+
+          <p class="auth-switch">Não tem conta? <a onclick="switchTab('register')">Criar conta grátis</a></p>
+        </div>
+
+        <!-- ===== REGISTER FORM ===== -->
+        <div id="form-register" class="auth-form hidden">
+          <div class="form-intro">
+            <h2 class="form-title">Criar sua conta</h2>
+            <p class="form-desc">Rápido, gratuito, sem cartão</p>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nome</label>
+              <input type="text" id="reg-name" class="form-input" placeholder="João Silva" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">E-mail</label>
+              <input type="email" id="reg-email" class="form-input" placeholder="seu@email.com" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Senha</label>
+            <div class="input-pass-wrap">
+              <input type="password" id="reg-pass" class="form-input" placeholder="Mínimo 6 caracteres" />
+              <button type="button" class="pass-toggle" onclick="togglePass('reg-pass', this)">👁</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cargo / Função</label>
+            <input type="text" id="reg-role" class="form-input" placeholder="Ex: Gerente de RH" />
+          </div>
+
+          <button class="btn btn-primary btn-full btn-lg mt-4" onclick="handleRegister()">
+            Criar minha conta
+          </button>
+
+          <p class="auth-switch">Já tem conta? <a onclick="switchTab('login')">Fazer login</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Escolha de Empresa (Login) -->
+  <div class="modal-overlay" id="modal-choose-company">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Selecionar Empresa</span>
+        <button class="modal-close" onclick="Modal.close('modal-choose-company')">✕</button>
+      </div>
+      <p class="text-sm text-muted mb-4">Escolha a empresa na qual deseja trabalhar nesta sessão:</p>
+      <div id="company-list-modal" class="company-list-modal"></div>
+      <div class="divider mt-4">ou</div>
+      <button class="btn btn-ghost btn-full mt-4" onclick="Modal.close('modal-choose-company'); openCreateCompany()">
+        + Criar nova empresa
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: Criar Empresa -->
+  <div class="modal-overlay" id="modal-create-company">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Criar Nova Empresa</span>
+        <button class="modal-close" onclick="Modal.close('modal-create-company')">✕</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="form-group">
+          <label class="form-label">Nome da Empresa</label>
+          <input type="text" id="co-name" class="form-input" placeholder="Ex: Acme Ltda" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">CNPJ</label>
+            <input type="text" id="co-cnpj" class="form-input" placeholder="00.000.000/0001-00" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Segmento</label>
+            <input type="text" id="co-segment" class="form-input" placeholder="Ex: Tecnologia" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Logo da Empresa <span class="text-faint">(opcional)</span></label>
+          <div class="logo-upload-area" id="logo-upload-area" onclick="document.getElementById('logo-input').click()">
+            <div class="logo-upload-icon">🖼</div>
+            <div class="logo-upload-text">Clique para carregar a logo</div>
+            <div class="logo-upload-sub">PNG, JPG ou SVG • máx 2MB</div>
+            <img id="logo-preview" style="display:none;max-height:80px;border-radius:8px;margin-top:8px" />
+          </div>
+          <input type="file" id="logo-input" accept="image/*" style="display:none" onchange="handleLogoUpload(event)" />
+        </div>
+        <button class="btn btn-primary btn-full" onclick="handleCreateCompany()">Criar Empresa e Entrar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container"></div>
+  <script src="../javascript/app.js"></script>
+  <script src="../javascript/login.js"></script>
+</body>
+</html>
