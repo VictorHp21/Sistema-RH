@@ -10,7 +10,7 @@ public interface UserRHRepository extends JpaRepository<UserRH, Long> {
 
     Optional<UserRH> findByEmail(String email);
 
-    Optional<UserRH> findbyEmailAndEmpresaid(
+    Optional<UserRH> findByEmailAndEmpresaId(
             String email,
             Long empresaId
     );

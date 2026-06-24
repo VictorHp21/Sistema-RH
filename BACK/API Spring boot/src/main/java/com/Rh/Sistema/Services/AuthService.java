@@ -27,7 +27,7 @@ public class AuthService {
     public String login(LoginRequest request){
 
         UserRH user =
-                repository.findbyEmailAndEmpresaid(
+                repository.findByEmailAndEmpresaId(
                                 request.getEmail(),
                                 request.getEmpresaId()
                         )

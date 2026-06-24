@@ -222,23 +222,59 @@ function openCreateCompany() {
   Modal.open('modal-create-company');
 }
 
-function handleLogoUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  if (file.size > 2 * 1024 * 1024) {
-    Toast.error('Arquivo muito grande', 'Máximo 2MB.');
+async function handleCreateCompany() {
+  const name = document.getElementById('co-name').value.trim();
+  const cnpj = document.getElementById('co-cnpj').value.trim();
+  const segment = document.getElementById('co-segment').value.trim();
+
+  if (!name) {
+    Toast.error('Informe o nome da empresa');
     return;
   }
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    logoDataUrl = e.target.result;
-    const preview = document.getElementById('logo-preview');
-    preview.src = logoDataUrl;
-    preview.style.display = 'block';
-    document.querySelector('.logo-upload-text').textContent = 'Logo carregada ✓';
-    document.querySelector('.logo-upload-icon').style.display = 'none';
-  };
-  reader.readAsDataURL(file);
+
+  const formData = new FormData();
+  formData.append("nome", name);
+  formData.append("cnpj", cnpj);
+  formData.append("status", true);
+
+  const file = document.getElementById("logo-input").files[0];
+  if (file) {
+    formData.append("logo", file);
+  }
+
+  try {
+    const response = await fetch("http://localhost:8080/empresas", {
+      method: "POST",
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error("Erro ao criar empresa");
+    }
+
+    const company = await response.json();
+
+    App.session.companyId = company.id;
+    App.session.userId = currentUser.id;
+    App.session.company = company;
+    App.session.user = currentUser;
+    App.saveSession();
+
+    Modal.closeAll();
+
+    Toast.success(
+      'Empresa criada!',
+      `Bem-vindo à ${company.nome || company.name}`
+    );
+
+    setTimeout(() => {
+      window.location.href = 'pages/dashboard.html';
+    }, 800);
+
+  } catch (error) {
+    console.error(error);
+    Toast.error("Erro ao criar empresa");
+  }
 }
 
 // onde a empresa é criada (envio do form)
