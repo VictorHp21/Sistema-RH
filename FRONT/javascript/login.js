@@ -5,8 +5,10 @@ let logoDataUrl = null;
 
 // On load: render company chips and handle indicator
 window.addEventListener('DOMContentLoaded', () => {
-  renderPreviewCompanies();
+  
   updateTabIndicator('login');
+
+  carregarEmpresasPreview();
 
   // If already logged in, redirect
   if (App.loadSession()) {
@@ -14,21 +16,50 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-function renderPreviewCompanies() {
-  const data = App.getData();
-  const list = document.getElementById('preview-companies-list');
-  if (!list) return;
-  if (data.companies.length === 0) {
-    list.innerHTML = '<span style="font-size:0.8rem;color:var(--text-3)">Nenhuma empresa ainda</span>';
-    return;
-  }
-  list.innerHTML = data.companies.map(c => `
-    <div class="preview-company-chip">
-      <div class="preview-chip-dot"></div>
-      ${c.name}
-    </div>
-  `).join('');
+async function carregarEmpresasPreview() {
+     try {
+        const response = await fetch("http://localhost:8080/empresas");
+
+        if (!response.ok) {
+            throw new Error("Erro ao buscar empresas");
+        }
+
+        const empresas = await response.json();
+
+        const container = document.getElementById("preview-companies-list");
+
+        container.innerHTML = "";
+
+        empresas.forEach(empresa => {
+
+            const chip = document.createElement("div");
+            chip.classList.add("preview-company-chip");
+
+            if (empresa.logoUrl) {
+                chip.innerHTML = `
+                    <img
+                        src="${empresa.logoUrl}"
+                        alt="${empresa.nome}"
+                        class="preview-company-logo"
+                    >
+                    <span>${empresa.nome}</span>
+                `;
+            } else {
+                chip.innerHTML = `
+                    <span class="preview-chip-dot">🏢</span>
+                    <span>${empresa.nome}</span>
+                `;
+            }
+
+            container.appendChild(chip);
+        });
+
+    } catch (error) {
+        console.error(error);
+    }
 }
+
+
 
 function switchTab(tab) {
   const loginForm = document.getElementById('form-login');
@@ -210,8 +241,10 @@ function handleLogoUpload(event) {
   reader.readAsDataURL(file);
 }
 
-function handleCreateCompany() {
-  const name = document.getElementById('co-name').value.trim();
+// onde a empresa é criada (envio do form)
+
+async function handleCreateCompany() {
+   const name = document.getElementById('co-name').value.trim();
   const cnpj = document.getElementById('co-cnpj').value.trim();
   const segment = document.getElementById('co-segment').value.trim();
 
@@ -220,37 +253,39 @@ function handleCreateCompany() {
     return;
   }
 
-  const data = App.getData();
-  const company = {
-    id: App.generateId(),
-    name,
-    cnpj,
-    segment,
-    logo: logoDataUrl || null,
-    palette: null,
-    members: [currentUser.id],
-    createdAt: new Date().toISOString(),
-  };
+  const formData = new FormData();
+  formData.append("nome", name);
+  formData.append("cnpj", cnpj);
+  formData.append("status", true);
+  formData.append("logo", document.getElementById("logo-input").files[0]);
 
-  if (!data.companies) data.companies = [];
-  data.companies.push(company);
+  try {
+    const response = await fetch("http://localhost:8080/empresas", {
+      method: "POST",
+      body: formData
+    });
 
-  // Add company ref to user if not exists
-  const userIdx = data.users.findIndex(u => u.id === currentUser.id);
-  if (userIdx > -1) {
-    if (!data.users[userIdx].companies) data.users[userIdx].companies = [];
-    data.users[userIdx].companies.push(company.id);
+    if (!response.ok) {
+      throw new Error("Erro ao criar empresa");
+    }
+
+    const company = await response.json();
+
+    App.session.companyId = company.id;
+    App.session.userId = currentUser.id;
+    App.session.company = company;
+    App.session.user = currentUser;
+    App.saveSession();
+
+    Modal.closeAll();
+    Toast.success('Empresa criada!', `Bem-vindo à ${company.nome}`);
+
+    setTimeout(() => {
+      window.location.href = 'pages/dashboard.html';
+    }, 800);
+
+  } catch (error) {
+    console.error(error);
+    Toast.error("Erro ao criar empresa");
   }
-
-  App.saveData(data);
-
-  App.session.companyId = company.id;
-  App.session.userId = currentUser.id;
-  App.session.company = company;
-  App.session.user = currentUser;
-  App.saveSession();
-
-  Modal.closeAll();
-  Toast.success('Empresa criada!', `Bem-vindo à ${company.name}`);
-  setTimeout(() => { window.location.href = 'pages/dashboard.html'; }, 800);
 }

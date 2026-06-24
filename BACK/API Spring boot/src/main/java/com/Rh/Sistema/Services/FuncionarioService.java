@@ -199,5 +199,18 @@ public class FuncionarioService {
 
     // adicionar mais métodos conforme necessário
 
+    public Funcionario alterarCargo(Long id, FuncionarioDTO dto){
+        Funcionario funcionarioExiste = buscarFuncionario(id);
+
+        Cargo cargo = cargoRepository.findById(dto.getCargoId())
+                .orElseThrow(() ->
+                        new RuntimeException("Cargo não encontrado"));
+
+        funcionarioExiste.setCargo(cargo);
+
+
+        return funcionarioRepository.save(funcionarioExiste);
+    }
+
 
 }

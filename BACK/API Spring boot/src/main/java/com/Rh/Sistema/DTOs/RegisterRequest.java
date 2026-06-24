@@ -5,6 +5,7 @@ public class RegisterRequest {
     private String nome;
     private String email;
     private String senha;
+    private String cargo;
     private Long empresaId;
 
     public RegisterRequest(){}
@@ -39,5 +40,13 @@ public class RegisterRequest {
 
     public void setEmpresaId(Long empresaId) {
         this.empresaId = empresaId;
+    }
+
+    public String getCargo() {
+        return cargo;
+    }
+
+    public void setCargo(String cargo) {
+        this.cargo = cargo;
     }
 }

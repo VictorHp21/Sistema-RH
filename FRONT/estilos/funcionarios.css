@@ -1,4 +1,11 @@
 /* ==================== EMPLOYEES ==================== */
+
+body{
+    color: blue;
+}
+
+
+
 .filters-bar {
   display: flex;
   align-items: center;

@@ -17,6 +17,10 @@ public class Empresa {
 
     private Boolean status;
 
+    // para imagem logo irei amazenar por url, preciso de um site para armazenar as imagens e aceite que a api ou o front receba esta imagem e salve neste site ao mesmo tempo que ira retornar a url em que a imagem foi salva, salvando esta url no bd para consulta e exibição no front
+
+    private String logoUrl;
+
 
 
 
@@ -104,5 +108,13 @@ public class Empresa {
 
     public void setDepartamentos(List<Departamento> departamentos) {
         this.departamentos = departamentos;
+    }
+
+    public String getLogoUrl() {
+        return logoUrl;
+    }
+
+    public void setLogoUrl(String logoUrl) {
+        this.logoUrl = logoUrl;
     }
 }

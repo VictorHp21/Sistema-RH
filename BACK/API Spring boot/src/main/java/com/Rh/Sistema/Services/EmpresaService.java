@@ -4,7 +4,9 @@ import com.Rh.Sistema.DTOs.RelatorioFolhaSalarioDTO;
 import com.Rh.Sistema.Entities.Empresa;
 import com.Rh.Sistema.Entities.Funcionario;
 import com.Rh.Sistema.Repositories.EmpresaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -15,6 +17,9 @@ import java.util.Optional;
 public class EmpresaService {
 
     private final EmpresaRepository repository;
+
+    @Autowired
+    private ImageUploadService imageUploadService;
 
     public EmpresaService(EmpresaRepository repository){
         this.repository = repository;
@@ -42,9 +47,24 @@ public class EmpresaService {
                 .orElseThrow(() -> new RuntimeException("Empresa não encontrada"));
     }
 
-    public Empresa cadastrarEmpresa(Empresa empresa){
+    public Empresa cadastrarEmpresa(String nome, String cnpj, Boolean status, MultipartFile logo){
+        Empresa empresa = new Empresa();
+        empresa.setNome(nome);
+        empresa.setCnpj(cnpj);
+        empresa.setStatus(status);
+
+        if (logo != null && !logo.isEmpty()) {
+            String url = imageUploadService.uploadImage(logo);
+            empresa.setLogoUrl(url);
+        }
+
         return repository.save(empresa);
     }
+
+    public List<Empresa> listarTodas() {
+        return repository.findAll();
+    }
+
 
     public boolean excluirEmpresa(Long id){
         if(repository.existsById(id)){

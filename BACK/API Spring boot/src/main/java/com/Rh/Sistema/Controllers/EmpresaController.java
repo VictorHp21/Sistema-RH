@@ -4,8 +4,10 @@ import com.Rh.Sistema.DTOs.RelatorioFolhaSalarioDTO;
 import com.Rh.Sistema.Entities.Empresa;
 import com.Rh.Sistema.Entities.Funcionario;
 import com.Rh.Sistema.Services.EmpresaService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -20,9 +22,13 @@ public class EmpresaController {
         this.service = service;
     }
 
-    @PostMapping
-    public Empresa cadastrarEmpresa(@RequestBody Empresa empresa){
-        return service.cadastrarEmpresa(empresa);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Empresa>cadastrarEmpresa(@RequestParam String nome,
+                                                   @RequestParam String cnpj,
+                                                   @RequestParam Boolean status,
+                                                   @RequestParam(required = false) MultipartFile logo){
+        Empresa empresa = service.cadastrarEmpresa(nome, cnpj, status, logo);
+        return ResponseEntity.ok(empresa);
     }
 
     @GetMapping("/{id}")
@@ -32,7 +38,10 @@ public class EmpresaController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-
+    @GetMapping
+    public ResponseEntity<List<Empresa>> listar() {
+        return ResponseEntity.ok(service.listarTodas());
+    }
 
 
     @GetMapping("/{id}/funcionarios")

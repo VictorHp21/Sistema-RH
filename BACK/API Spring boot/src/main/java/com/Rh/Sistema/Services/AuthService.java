@@ -61,6 +61,7 @@ public class AuthService {
 
         usuario.setNome(request.getNome());
         usuario.setEmail(request.getEmail());
+        usuario.setCargo(request.getCargo());
 
         usuario.setSenha(
                 encoder.encode(request.getSenha())

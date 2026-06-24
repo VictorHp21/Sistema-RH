@@ -14,6 +14,8 @@ public class UserRH {
     private String email;
     private String senha;
 
+    private String cargo;
+
 
     @ManyToOne
     @JoinColumn(name = "empresa_id")
@@ -21,11 +23,12 @@ public class UserRH {
 
     public UserRH(){}
 
-    public UserRH(String nome, String email, String senha, Empresa empresa) {
+    public UserRH(String nome, String email, String senha, Empresa empresa, String cargo) {
         this.nome = nome;
         this.email = email;
         this.senha = senha;
         this.empresa = empresa;
+        this.cargo = cargo;
     }
 
     public Long getId() {
@@ -66,5 +69,13 @@ public class UserRH {
 
     public void setEmpresa(Empresa empresa) {
         this.empresa = empresa;
+    }
+
+    public String getCargo() {
+        return cargo;
+    }
+
+    public void setCargo(String cargo) {
+        this.cargo = cargo;
     }
 }

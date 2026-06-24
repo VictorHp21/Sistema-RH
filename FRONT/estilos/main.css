@@ -11,6 +11,11 @@
   --danger: #EF4444;
   --warning: #F97316;
 
+  --cor1: rgba(124, 58, 237, 1); /*roxo*/
+  --cor2: rgba(15, 15, 15, 1); 
+  --cor3: rgba(30, 30, 30, 1);
+  --cor4: rgba(255, 255, 255, 1);
+
   --bg: #0F0F17;
   --bg-2: #16161F;
   --bg-3: #1E1E2E;
@@ -117,13 +122,18 @@ input, select, textarea, button { font-family: inherit; }
 .btn:active::after { opacity: 0.1; }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  background: linear-gradient(135deg, var(--cor1), purple);
   color: white;
   box-shadow: 0 4px 15px rgba(79,70,229,0.35);
 }
 .btn-primary:hover {
   box-shadow: 0 6px 22px rgba(79,70,229,0.5);
   transform: translateY(-1px);
+}
+
+.btn-primary#btn-portfolio{
+  padding: auto;
+  width: 150px;
 }
 
 .btn-secondary {
