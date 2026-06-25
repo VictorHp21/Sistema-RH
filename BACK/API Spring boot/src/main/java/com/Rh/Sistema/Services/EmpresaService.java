@@ -1,9 +1,12 @@
 package com.Rh.Sistema.Services;
 
+import com.Rh.Sistema.DTOs.EmpresaPreviewDTO;
 import com.Rh.Sistema.DTOs.RelatorioFolhaSalarioDTO;
 import com.Rh.Sistema.Entities.Empresa;
 import com.Rh.Sistema.Entities.Funcionario;
+import com.Rh.Sistema.Entities.UserRH;
 import com.Rh.Sistema.Repositories.EmpresaRepository;
+import com.Rh.Sistema.Repositories.UserRHRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,13 +19,19 @@ import java.util.Optional;
 @Service
 public class EmpresaService {
 
+    @Autowired
     private final EmpresaRepository repository;
+
+    @Autowired
+    private final UserRHRepository userRHRepository;
 
     @Autowired
     private ImageUploadService imageUploadService;
 
-    public EmpresaService(EmpresaRepository repository){
+    public EmpresaService(EmpresaRepository repository, UserRHRepository userRHRepository, ImageUploadService imageUploadService){
         this.repository = repository;
+        this.userRHRepository = userRHRepository;
+        this.imageUploadService = imageUploadService;
     }
 
     // métodos de CRUD:
@@ -212,6 +221,19 @@ public class EmpresaService {
 
     }
 
+    public EmpresaPreviewDTO empresaDoUsuario(String email) {
+
+        UserRH user = userRHRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        Empresa empresa = user.getEmpresa();
+
+        return new EmpresaPreviewDTO(
+                empresa.getId(),
+                empresa.getNome(),
+                empresa.getCnpj()
+        );
+    }
 
 
 

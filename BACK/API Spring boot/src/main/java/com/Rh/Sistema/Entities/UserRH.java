@@ -1,5 +1,6 @@
 package com.Rh.Sistema.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -19,6 +20,7 @@ public class UserRH {
 
     @ManyToOne
     @JoinColumn(name = "empresa_id")
+    @JsonIgnore
     private Empresa empresa;
 
     public UserRH(){}

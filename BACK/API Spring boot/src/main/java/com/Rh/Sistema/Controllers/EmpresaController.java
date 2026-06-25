@@ -1,8 +1,10 @@
 package com.Rh.Sistema.Controllers;
 
+import com.Rh.Sistema.DTOs.EmpresaPreviewDTO;
 import com.Rh.Sistema.DTOs.RelatorioFolhaSalarioDTO;
 import com.Rh.Sistema.Entities.Empresa;
 import com.Rh.Sistema.Entities.Funcionario;
+import com.Rh.Sistema.Entities.UserRH;
 import com.Rh.Sistema.Services.EmpresaService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/empresa")
@@ -95,6 +98,11 @@ public class EmpresaController {
     @GetMapping("/{id}/mediaSalarial")
     public BigDecimal mediaSalarial(@PathVariable Long id){
         return service.mediaSalarial(id);
+    }
+
+    @GetMapping("/user/{email}")
+    public ResponseEntity<EmpresaPreviewDTO> empresaDoUsuario(@PathVariable String email){
+        return ResponseEntity.ok(service.empresaDoUsuario(email));
     }
 
 }

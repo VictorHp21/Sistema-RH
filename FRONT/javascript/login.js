@@ -2,10 +2,32 @@
 
 let currentUser = null;
 let logoDataUrl = null;
+let currentCompanies = [];
+
+window.selectCompany = function selectCompany(companyId) {
+  const company = currentCompanies.find(c => c.id === companyId);
+
+  if (!company) return;
+
+  App.session.companyId = company.id;
+  App.session.userId = currentUser.id;
+  App.session.company = company;
+  App.session.user = currentUser;
+
+  App.saveSession();
+
+  Modal.closeAll();
+
+  Toast.success('Login realizado!', `Bem-vindo à ${company.nome}`);
+
+  setTimeout(() => {
+    window.location.href = 'pages/dashboard.html';
+  }, 800);
+}
 
 // On load: render company chips and handle indicator
 window.addEventListener('DOMContentLoaded', () => {
-  
+
   updateTabIndicator('login');
 
   carregarEmpresasPreview();
@@ -17,48 +39,52 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 async function carregarEmpresasPreview() {
-     try {
-        const response = await fetch("http://localhost:8080/empresas");
+  const container = document.getElementById("preview-companies-list");
 
-        if (!response.ok) {
-            throw new Error("Erro ao buscar empresas");
-        }
+  container.innerHTML = `
+    <div class="preview-loading">
+      <span class="spinner">⏳</span>
+      <span>Carregando empresas...</span>
+    </div>
+  `;
 
-        const empresas = await response.json();
+  try {
+    const response = await fetch("http://localhost:8080/empresa");
 
-        const container = document.getElementById("preview-companies-list");
 
-        container.innerHTML = "";
-
-        empresas.forEach(empresa => {
-
-            const chip = document.createElement("div");
-            chip.classList.add("preview-company-chip");
-
-            if (empresa.logoUrl) {
-                chip.innerHTML = `
-                    <img
-                        src="${empresa.logoUrl}"
-                        alt="${empresa.nome}"
-                        class="preview-company-logo"
-                    >
-                    <span>${empresa.nome}</span>
-                `;
-            } else {
-                chip.innerHTML = `
-                    <span class="preview-chip-dot">🏢</span>
-                    <span>${empresa.nome}</span>
-                `;
-            }
-
-            container.appendChild(chip);
-        });
-
-    } catch (error) {
-        console.error(error);
+    if (!response.ok) {
+      console.warn("Endpoint /empresa indisponível:", response.status);
+      container.innerHTML = "<p>Empresas indisponíveis no momento</p>";
+      return;
     }
-}
 
+    const empresas = await response.json();
+
+    if (!Array.isArray(empresas)) {
+      console.warn("Resposta inválida da API");
+      container.innerHTML = "<p>Erro ao carregar empresas</p>";
+      return;
+    }
+
+    container.innerHTML = "";
+
+    empresas.forEach(empresa => {
+      const chip = document.createElement("div");
+      chip.classList.add("preview-company-chip");
+
+      chip.innerHTML = empresa.logoUrl
+        ? `<img src="${empresa.logoUrl}" class="preview-company-logo"><span>${empresa.nome}</span>`
+        : `<span>🏢</span><br><span>${empresa.nome}</span>`;
+
+      container.appendChild(chip);
+    });
+
+  } catch (error) {
+    console.error("Erro de conexão com backend:", error);
+
+    container.innerHTML = "<p>Servidor offline</p>";
+  }
+}
 
 
 function switchTab(tab) {
@@ -103,7 +129,7 @@ function togglePass(inputId, btn) {
 }
 
 /* ==================== LOGIN ==================== */
-function handleLogin() {
+async function handleLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass = document.getElementById('login-pass').value;
 
@@ -114,66 +140,96 @@ function handleLogin() {
 
   const btnText = document.getElementById('login-btn-text');
   const spinner = document.getElementById('login-spinner');
+
   btnText.textContent = 'Verificando...';
   spinner.style.display = 'inline-block';
 
-  setTimeout(() => {
-    const data = App.getData();
-    const user = data.users?.find(u => u.email === email && u.password === pass);
+  try {
+    const response = await fetch('http://localhost:8080/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: email,
+        senha: pass
+      })
+    });
 
-    if (!user) {
-      Toast.error('Credenciais inválidas', 'Verifique seu e-mail e senha.');
-      btnText.textContent = 'Entrar na conta';
-      spinner.style.display = 'none';
+    const text = await response.text();
+    console.log("STATUS:", response.status);
+    console.log("RESPOSTA:", text);
+
+    if (!response.ok) {
+      Toast.error(text || "Credenciais inválidas");
       return;
     }
 
-    currentUser = user;
+    // =========================
+    // LOGIN OK
+    // =========================
+    currentUser = { email }; // você pode expandir depois com dados do backend
+
+    Toast.success("Login realizado com sucesso!");
+
+    // =========================
+    // PEGAR EMPRESAS DO USUÁRIO
+    // =========================
+    const companyRes = await fetch(
+      `http://localhost:8080/empresa/user/${encodeURIComponent(email)}`
+    );
+
+    const company = await companyRes.json();
+    console.log("EMPRESA:", company);
+
+    currentCompanies = [company];
+    openChooseCompany(currentCompanies);
+
+    // =========================
+    // FLUXO IGUAL AO ANTIGO
+    // =========================
+
     btnText.textContent = 'Entrar na conta';
     spinner.style.display = 'none';
 
-    // Show company selection
-    const userCompanies = data.companies.filter(c => c.members?.includes(user.id));
-    if (userCompanies.length === 0) {
-      // No companies yet → create one
+    if (!company || !company.id) {
       openCreateCompany();
     } else {
-      openChooseCompany(userCompanies);
+      openChooseCompany(currentCompanies); // mantém compatível com função antiga (array)
     }
-  }, 800);
+
+  } catch (error) {
+    console.error(error);
+    Toast.error('Erro ao conectar com o servidor');
+  } finally {
+    btnText.textContent = 'Entrar na conta';
+    spinner.style.display = 'none';
+  }
 }
+
+
 
 function openChooseCompany(companies) {
   const list = document.getElementById('company-list-modal');
+
   list.innerHTML = companies.map(c => `
-    <div class="company-item" onclick="selectCompany('${c.id}')">
+    <div class="company-item" onclick="selectCompany(${c.id})">
       <div class="company-item-logo">
-        ${c.logo ? `<img src="${c.logo}" alt="${c.name}">` : c.name[0].toUpperCase()}
+        ${c.logoUrl
+      ? `<img src="${c.logoUrl}" alt="${c.nome}">`
+      : (c.nome ? c.nome[0].toUpperCase() : '🏢')}
       </div>
+
       <div class="company-item-info">
-        <div class="company-item-name">${c.name}</div>
-        <div class="company-item-meta">${c.segment || 'Sem segmento'} · ${c.cnpj || 'Sem CNPJ'}</div>
+        <div class="company-item-name">${c.nome}</div>
+        <div class="company-item-meta">${c.cnpj || 'Sem CNPJ'}</div>
       </div>
+
       <span class="company-item-arrow">→</span>
     </div>
   `).join('');
+
   Modal.open('modal-choose-company');
-}
-
-function selectCompany(companyId) {
-  const data = App.getData();
-  const company = data.companies.find(c => c.id === companyId);
-  if (!company) return;
-
-  App.session.companyId = companyId;
-  App.session.userId = currentUser.id;
-  App.session.company = company;
-  App.session.user = currentUser;
-  App.saveSession();
-
-  Modal.closeAll();
-  Toast.success('Login realizado!', `Bem-vindo à ${company.name}`);
-  setTimeout(() => { window.location.href = 'pages/dashboard.html'; }, 800);
 }
 
 /* ==================== REGISTER ==================== */
@@ -243,7 +299,7 @@ async function handleCreateCompany() {
   }
 
   try {
-    const response = await fetch("http://localhost:8080/empresas", {
+    const response = await fetch("http://localhost:8080/empresa", {
       method: "POST",
       body: formData
     });
@@ -279,49 +335,4 @@ async function handleCreateCompany() {
 
 // onde a empresa é criada (envio do form)
 
-async function handleCreateCompany() {
-   const name = document.getElementById('co-name').value.trim();
-  const cnpj = document.getElementById('co-cnpj').value.trim();
-  const segment = document.getElementById('co-segment').value.trim();
 
-  if (!name) {
-    Toast.error('Informe o nome da empresa');
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("nome", name);
-  formData.append("cnpj", cnpj);
-  formData.append("status", true);
-  formData.append("logo", document.getElementById("logo-input").files[0]);
-
-  try {
-    const response = await fetch("http://localhost:8080/empresas", {
-      method: "POST",
-      body: formData
-    });
-
-    if (!response.ok) {
-      throw new Error("Erro ao criar empresa");
-    }
-
-    const company = await response.json();
-
-    App.session.companyId = company.id;
-    App.session.userId = currentUser.id;
-    App.session.company = company;
-    App.session.user = currentUser;
-    App.saveSession();
-
-    Modal.closeAll();
-    Toast.success('Empresa criada!', `Bem-vindo à ${company.nome}`);
-
-    setTimeout(() => {
-      window.location.href = 'pages/dashboard.html';
-    }, 800);
-
-  } catch (error) {
-    console.error(error);
-    Toast.error("Erro ao criar empresa");
-  }
-}

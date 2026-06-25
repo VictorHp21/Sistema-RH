@@ -1,4 +1,28 @@
 /* ==================== DASHBOARD ==================== */
+
+const session = App.loadSession();
+
+const company = session?.company;
+const user = session?.user;
+
+window.addEventListener("DOMContentLoaded", () => {
+  const session = App.loadSession();
+
+  if (!session?.company) {
+    window.location.href = "../index.html";
+    return;
+  }
+
+  document.getElementById("company-name").textContent =
+    session.company.nome;
+
+  document.getElementById("user-name").textContent =
+    session.user.nome;
+});
+
+
+
+
 window.addEventListener('DOMContentLoaded', () => {
   if (!App.requireAuth()) return;
   renderDashboard();

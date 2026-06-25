@@ -66,7 +66,7 @@
   align-items: center;
   padding: 48px;
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .auth-left-inner {
@@ -78,10 +78,12 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  margin-top: 150px;
   margin-bottom: 52px;
 }
 
 .brand-icon {
+  margin-top: auto;
   width: 40px;
   height: 40px;
   background: var(--cor1);
@@ -178,28 +180,33 @@
 .preview-company-chip {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 5px 12px;
+  padding: 8px 12px;
   background: var(--bg-2);
   border: 1px solid var(--border);
-  border-radius: 99px;
+  border-radius: 12px;
   font-size: 0.8rem;
   color: var(--text-2);
-  animation: slideUp 0.4s ease;
 }
 
-.preview-chip-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--success);
+/* Quando existir logo */
+.preview-company-chip.has-logo {
+  flex-direction: column;
+  text-align: center;
+  gap: 8px;
+  min-width: 90px;
 }
 
 .preview-company-logo {
-    width: 26px;
-    height: 26px;
-    border-radius: 8px;
-    object-fit: cover;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.preview-company-chip span {
+  margin: 0;
 }
 
 /* ==================== RIGHT PANEL ==================== */
@@ -381,4 +388,31 @@
   .auth-left { display: none; }
   .auth-right { width: 100%; border-left: none; background: var(--bg); }
   .login-body { overflow: auto; height: auto; min-height: 100vh; }
+}
+
+
+/*Animação de carregamento empresas cadastradas*/
+
+.preview-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #aaa;
+  padding: 10px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.preview-loading .spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }

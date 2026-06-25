@@ -1,5 +1,6 @@
 package com.Rh.Sistema.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class Empresa {
     // relacionamentos
 
     @OneToMany(mappedBy = "empresa")
+    @JsonIgnore
     private List<Funcionario> funcionarios;
 
     @OneToMany(mappedBy = "empresa")

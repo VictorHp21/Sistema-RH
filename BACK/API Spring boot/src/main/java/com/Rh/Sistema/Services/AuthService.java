@@ -26,20 +26,11 @@ public class AuthService {
 
     public String login(LoginRequest request){
 
-        UserRH user =
-                repository.findByEmailAndEmpresaId(
-                                request.getEmail(),
-                                request.getEmpresaId()
-                        )
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Usuário não encontrado nesta empresa"
-                                ));
+        UserRH user = repository.findByEmail(request.getEmail())
+                .orElseThrow(() ->
+                        new RuntimeException("Usuário não encontrado"));
 
-        if(!encoder.matches(
-                request.getSenha(),
-                user.getSenha())){
-
+        if(!encoder.matches(request.getSenha(), user.getSenha())){
             throw new RuntimeException("Senha inválida");
         }
 
