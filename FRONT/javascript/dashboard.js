@@ -1,55 +1,80 @@
 /* ==================== DASHBOARD ==================== */
 
-const session = App.loadSession();
+App.loadSession();
 
-const company = session?.company;
-const user = session?.user;
+
 
 window.addEventListener("DOMContentLoaded", () => {
-  const session = App.loadSession();
+  if (!App.requireAuth()) return;
 
-  if (!session?.company) {
-    window.location.href = "../index.html";
-    return;
+  const companyEl = document.getElementById("company-nome");
+  const userEl = document.getElementById("user-name");
+
+  if (companyEl) {
+    companyEl.textContent = App.session.company.nome;
   }
 
-  document.getElementById("company-name").textContent =
-    session.company.nome;
+  if (userEl) {
+    userEl.textContent = App.session.user.nome;
+  }
 
-  document.getElementById("user-name").textContent =
-    session.user.nome;
-});
-
-
-
-
-window.addEventListener('DOMContentLoaded', () => {
-  if (!App.requireAuth()) return;
   renderDashboard();
 });
 
-function renderDashboard() {
-  const employees = App.getEmployees();
-  const departments = App.getDepartments();
-  const active = employees.filter(e => e.status === 'ativo').length;
-  const onLeave = employees.filter(e => e.status === 'afastado').length;
-  const company = App.session.company;
+
+
+
+async function renderDashboard() {
+
+  App.showLoader("Carregando dashboard...");
+
+  let employees = [];
+  let departments = [];
+  let active = 0;
+  let onLeave = 0;
+  let company = App.session.company;
+  let deptStats = [];
+  let maxDept = 1;
 
   const now = new Date();
-  const greeting = now.getHours() < 12 ? 'Bom dia' : now.getHours() < 18 ? 'Boa tarde' : 'Boa noite';
-  const dateStr = now.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const greeting =
+    now.getHours() < 12 ? "Bom dia" :
+      now.getHours() < 18 ? "Boa tarde" : "Boa noite";
 
-  const deptStats = departments.map(d => {
-    const count = employees.filter(e => e.departmentId === d.id).length;
-    return { name: d.name, count };
+  const dateStr = now.toLocaleDateString("pt-BR", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric"
   });
-  const maxDept = Math.max(...deptStats.map(d => d.count), 1);
+
+  try {
+    employees = await App.getEmployees();
+    departments = await App.getDepartments();
+
+    active = employees.filter(e => e.statusEmpregado === true).length;
+    onLeave = employees.filter(e => e.statusEmpregado === false).length;
+
+    deptStats = departments.map(d => {
+      const count = employees.filter(e => e.departmentId === d.id).length;
+      return { name: d.name, count };
+    });
+
+    maxDept = Math.max(...deptStats.map(d => d.count), 1);
+
+  } catch (error) {
+    console.error(error);
+  } finally {
+    App.hideLoader();
+  }
+
+
 
   const content = `
     <div class="welcome-banner animate-in">
       <div class="welcome-content">
         <div class="welcome-greeting">${greeting}, 👋</div>
-        <div class="welcome-name">${App.session.user?.name?.split(' ')[0] || 'Usuário'}</div>
+        <div class="welcome-name">${App.session.user?.nome?.split(' ')[0] || 'Usuário'}</div>
         <div class="welcome-date">${dateStr.charAt(0).toUpperCase() + dateStr.slice(1)}</div>
       </div>
     </div>
@@ -103,13 +128,13 @@ function renderDashboard() {
           <a href="departments.html" class="btn btn-ghost btn-sm">Ver todos</a>
         </div>
         ${deptStats.length === 0
-          ? `<div class="empty-state">
+      ? `<div class="empty-state">
               <div class="empty-state-icon">🏢</div>
               <div class="empty-state-title">Nenhum departamento</div>
               <div class="empty-state-desc">Crie departamentos para organizar sua equipe.</div>
               <a href="departments.html" class="btn btn-primary btn-sm">Criar departamento</a>
             </div>`
-          : `<div class="dept-bars">
+      : `<div class="dept-bars">
               ${deptStats.map(d => `
                 <div class="dept-bar-item">
                   <div class="dept-bar-header">
@@ -117,12 +142,12 @@ function renderDashboard() {
                     <span class="dept-bar-count">${d.count} funcionário${d.count !== 1 ? 's' : ''}</span>
                   </div>
                   <div class="dept-bar-track">
-                    <div class="dept-bar-fill" style="width:${(d.count/maxDept*100).toFixed(0)}%"></div>
+                    <div class="dept-bar-fill" style="width:${(d.count / maxDept * 100).toFixed(0)}%"></div>
                   </div>
                 </div>
               `).join('')}
             </div>`
-        }
+    }
       </div>
 
       <div style="display:flex;flex-direction:column;gap:20px">
@@ -143,7 +168,7 @@ function renderDashboard() {
     </div>
   `;
 
-  mountAppShell('dashboard.html', 'Dashboard', company?.name, content);
+  mountAppShell('dashboard.html', 'Dashboard', company?.nome, content);
   renderMiniCalendar();
 }
 
@@ -163,7 +188,7 @@ function renderActivity(employees) {
           <div class="activity-dot ${e.status === 'ativo' ? 'success' : e.status === 'afastado' ? 'warning' : ''}"></div>
         </div>
         <div class="activity-content">
-          <div class="activity-title">${e.name} adicionado(a)</div>
+          <div class="activity-title">${e.nome} adicionado(a)</div>
           <div class="activity-time">${App.formatDate(e.createdAt)} · ${e.position || 'Sem cargo'}</div>
         </div>
       </div>

@@ -1,5 +1,22 @@
+
+
+
 /* ==================== APP STATE ==================== */
 const App = {
+
+  showLoader(text = "Carregando...") {
+    const loader = document.getElementById("global-loader");
+    if (!loader) return;
+
+    loader.classList.remove("hidden");
+    loader.querySelector(".loader-text").textContent = text;
+  },
+
+  hideLoader() {
+    const loader = document.getElementById("global-loader");
+    if (loader) loader.classList.add("hidden");
+  },
+
   // All data stored per company session
   getData() {
     return JSON.parse(localStorage.getItem('rh_data') || '{"companies":[],"users":[]}');
@@ -18,31 +35,36 @@ const App = {
 
   // Load session from sessionStorage (tab-scoped)
   loadSession() {
-    const s = sessionStorage.getItem('rh_session');
-    if (s) {
-      const parsed = JSON.parse(s);
-      const data = this.getData();
-      const company = data.companies.find(c => c.id === parsed.companyId);
-      const user = data.users.find(u => u.id === parsed.userId);
-      if (company && user) {
-        this.session = { companyId: company.id, userId: user.id, company, user };
-        return true;
-      }
+
+    console.log("LOAD SESSION");
+
+    const s = sessionStorage.getItem("rh_session");
+
+    console.log(s);
+
+    if (!s) {
+      console.log("SEM SESSÃO");
+      return false;
     }
-    return false;
+
+    this.session = JSON.parse(s);
+
+    console.log(this.session);
+
+    return true;
   },
 
   saveSession() {
-    sessionStorage.setItem('rh_session', JSON.stringify({
-      companyId: this.session.companyId,
-      userId: this.session.userId,
-    }));
+    sessionStorage.setItem(
+      "rh_session",
+      JSON.stringify(this.session)
+    );
   },
 
   logout() {
     sessionStorage.removeItem('rh_session');
     this.session = { companyId: null, userId: null, company: null, user: null };
-    window.location.href = 'index.html';
+    window.location.href = '/paginas/index.html';
   },
 
   // Company palette & logo (stored per company inside companies array)
@@ -52,8 +74,17 @@ const App = {
     return c ? { palette: c.palette, logo: c.logo } : { palette: null, logo: null };
   },
 
+  getCompanyTheme() {
+    return {
+      palette: this.session.company?.palette || null,
+      logo: this.session.company?.logoUrl || null
+    };
+  },
+
   applyCompanyTheme() {
     const { palette, logo } = this.getCompanyTheme();
+
+    // Aplica as cores somente se a empresa possuir uma paleta
     if (palette) {
       document.documentElement.style.setProperty('--primary', palette.primary);
       document.documentElement.style.setProperty('--primary-light', palette.primaryLight);
@@ -61,17 +92,27 @@ const App = {
       document.documentElement.style.setProperty('--secondary', palette.secondary);
       document.documentElement.style.setProperty('--shadow-glow', `0 0 40px ${palette.primary}40`);
     }
-    // Logo
-    const logoEls = document.querySelectorAll('.company-logo-img');
+
+    // Atualiza nome da empresa
     const logoName = document.querySelectorAll('.company-name-text');
-    const companyName = this.session.company?.name || 'RH System';
-    logoName.forEach(el => el.textContent = companyName);
+    const companyName = this.session.company?.nome || 'RH System';
+
+    logoName.forEach(el => {
+      el.textContent = companyName;
+    });
+
+    // Atualiza logo
+    const logoEls = document.querySelectorAll('.company-logo-img');
+
     if (logo) {
       logoEls.forEach(el => {
         el.src = logo;
         el.style.display = 'block';
+
         const initials = el.closest('.logo-wrap')?.querySelector('.logo-initials');
-        if (initials) initials.style.display = 'none';
+        if (initials) {
+          initials.style.display = 'none';
+        }
       });
     }
   },
@@ -79,7 +120,7 @@ const App = {
   // Guard - redirect to login if no session
   requireAuth() {
     if (!this.loadSession()) {
-      window.location.href = 'index.html';
+      window.location.href = '/paginas/index.html';
       return false;
     }
     this.applyCompanyTheme();
@@ -105,15 +146,19 @@ const App = {
   },
 
   // Get employees for current company
-  getEmployees() {
-    const data = this.getData();
-    return (data.employees || []).filter(e => e.companyId === this.session.companyId);
+  async getEmployees() {
+    const res = await fetch(`http://localhost:8080/empresa/${this.session.companyId}/funcionarios`);
+    return await res.json();
   },
 
-  getDepartments() {
-    const data = this.getData();
-    return (data.departments || []).filter(d => d.companyId === this.session.companyId);
+  async getDepartments() {
+    const res = await fetch(
+      `http://localhost:8080/empresa/${this.session.companyId}/departamentos`
+    );
+
+    return await res.json();
   },
+
 };
 
 /* ==================== TOAST ==================== */
@@ -154,6 +199,8 @@ const Toast = {
   warning(title, msg) { this.show(title, msg, 'warning'); },
   info(title, msg) { this.show(title, msg, 'info'); },
 };
+
+
 
 /* ==================== MODAL ==================== */
 const Modal = {
@@ -290,7 +337,10 @@ const PalettePicker = {
     Toast.info('Paleta restaurada para o padrão.');
     this.render();
   },
-};
+}
+
+
+
 
 /* ==================== SIDEBAR TOGGLE ==================== */
 function togglePaletteSidebar() {
@@ -314,3 +364,4 @@ window.addEventListener('DOMContentLoaded', () => {
   Toast.init();
   setActiveNav();
 });
+

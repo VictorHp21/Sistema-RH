@@ -81,3 +81,17 @@ VALUES
 select *from empresas;
 
 select *from funcionarios;
+
+-- Inserindo funcionários na empresa 1 para testes
+
+INSERT INTO funcionarios
+(id, idade, cpf, cargo_id, departamento_id, nome, salario,
+ data_de_contratacao, status_empregado, empresa_id)
+VALUES
+(20, 25, '11111111111', 5, 1, 'João Silva', 4500.00, '2024-01-15', true, 1),
+
+(21, 28, '22222222222', 2, 2, 'Maria Oliveira', 5200.00, '2023-08-10', false, 1),
+
+(22, 31, '33333333333', 3, 3, 'Carlos Souza', 7000.00, '2022-05-20', false, 1);
+
+select *from usuários;

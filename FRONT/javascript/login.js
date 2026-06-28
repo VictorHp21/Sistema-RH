@@ -21,7 +21,7 @@ window.selectCompany = function selectCompany(companyId) {
   Toast.success('Login realizado!', `Bem-vindo à ${company.nome}`);
 
   setTimeout(() => {
-    window.location.href = 'pages/dashboard.html';
+    window.location.href = 'dashboard.html';
   }, 800);
 }
 
@@ -34,7 +34,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // If already logged in, redirect
   if (App.loadSession()) {
-    window.location.href = 'pages/dashboard.html';
+
+    console.log("Sessão antes de salvar:", App.session);
+
+    App.saveSession();
+
+    console.log("Sessão salva:", App.loadSession());
+
+    window.location.href = 'dashboard.html';
   }
 });
 
@@ -156,21 +163,19 @@ async function handleLogin() {
       })
     });
 
-    const text = await response.text();
-    console.log("STATUS:", response.status);
-    console.log("RESPOSTA:", text);
+
 
     if (!response.ok) {
-      Toast.error(text || "Credenciais inválidas");
+      const erro = await response.text();
+      Toast.error(erro);
       return;
     }
 
-    // =========================
-    // LOGIN OK
-    // =========================
-    currentUser = { email }; // você pode expandir depois com dados do backend
+    const user = await response.json();
 
-    Toast.success("Login realizado com sucesso!");
+    currentUser = user;
+
+    console.log(currentUser);
 
     // =========================
     // PEGAR EMPRESAS DO USUÁRIO
@@ -183,11 +188,9 @@ async function handleLogin() {
     console.log("EMPRESA:", company);
 
     currentCompanies = [company];
-    openChooseCompany(currentCompanies);
 
-    // =========================
-    // FLUXO IGUAL AO ANTIGO
-    // =========================
+
+
 
     btnText.textContent = 'Entrar na conta';
     spinner.style.display = 'none';
@@ -324,7 +327,7 @@ async function handleCreateCompany() {
     );
 
     setTimeout(() => {
-      window.location.href = 'pages/dashboard.html';
+      window.location.href = 'dashboard.html';
     }, 800);
 
   } catch (error) {

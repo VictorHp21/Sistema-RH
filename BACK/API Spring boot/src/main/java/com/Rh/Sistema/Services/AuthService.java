@@ -24,7 +24,7 @@ public class AuthService {
 
     // login
 
-    public String login(LoginRequest request){
+    public UserRH login(LoginRequest request){
 
         UserRH user = repository.findByEmail(request.getEmail())
                 .orElseThrow(() ->
@@ -34,7 +34,7 @@ public class AuthService {
             throw new RuntimeException("Senha inválida");
         }
 
-        return "LOGIN EFETUADO";
+        return user;
     }
 
 

@@ -2,6 +2,7 @@ package com.Rh.Sistema.Controllers;
 
 import com.Rh.Sistema.DTOs.EmpresaPreviewDTO;
 import com.Rh.Sistema.DTOs.RelatorioFolhaSalarioDTO;
+import com.Rh.Sistema.Entities.Departamento;
 import com.Rh.Sistema.Entities.Empresa;
 import com.Rh.Sistema.Entities.Funcionario;
 import com.Rh.Sistema.Entities.UserRH;
@@ -50,6 +51,11 @@ public class EmpresaController {
     @GetMapping("/{id}/funcionarios")
     public List<Funcionario> listarFuncionarios(@PathVariable Long id){
         return service.listarFuncionarios(id);
+    }
+
+    @GetMapping("/{id}/departamentos")
+    public List<Departamento> listarDepartamentos(@PathVariable Long id){
+        return service.listarDepartamentos(id);
     }
 
 

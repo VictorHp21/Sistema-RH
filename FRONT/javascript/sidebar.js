@@ -2,8 +2,8 @@
 function renderSidebar(activePage) {
   const user = App.session.user;
   const company = App.session.company;
-  const initials = company ? App.getInitials(company.name) : 'RH';
-  const userInitials = user ? App.getInitials(user.name) : 'U';
+  const initials = company ? App.getInitials(company.nome) : 'RH';
+  const userInitials = user ? App.getInitials(user.nome) : 'U';
 
   const nav = [
     { section: 'Principal', links: [
@@ -36,7 +36,7 @@ function renderSidebar(activePage) {
           <img class="company-logo-img" src="" alt="" />
           <div class="logo-initials">${initials}</div>
           <div class="logo-text">
-            <span class="company-name-text">${company?.name || 'RH System'}</span>
+            <span class="company-name-text">${company?.nome || 'RH System'}</span>
             <span class="logo-sub">Sistema de RH</span>
           </div>
         </div>
@@ -46,7 +46,7 @@ function renderSidebar(activePage) {
         <button class="user-info-btn" onclick="alert('Perfil em breve!')">
           <div class="avatar avatar-sm" style="background:linear-gradient(135deg,var(--primary),var(--secondary))">${userInitials}</div>
           <div class="user-info-text">
-            <div class="user-name">${user?.name || 'Usuário'}</div>
+            <div class="user-name">${user?.nome || 'Usuário'}</div>
             <div class="user-role">${user?.role || 'Admin'}</div>
           </div>
         </button>
@@ -73,7 +73,7 @@ function renderTopbar(title, subtitle) {
           🎨
         </button>
         <div class="avatar avatar-sm" style="background:linear-gradient(135deg,var(--primary),var(--secondary))">
-          ${App.session.user ? App.getInitials(App.session.user.name) : 'U'}
+          ${App.session.user ? App.getInitials(App.session.user.nome) : 'U'}
         </div>
       </div>
     </div>

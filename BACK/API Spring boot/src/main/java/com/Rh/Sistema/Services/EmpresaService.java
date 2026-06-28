@@ -2,6 +2,7 @@ package com.Rh.Sistema.Services;
 
 import com.Rh.Sistema.DTOs.EmpresaPreviewDTO;
 import com.Rh.Sistema.DTOs.RelatorioFolhaSalarioDTO;
+import com.Rh.Sistema.Entities.Departamento;
 import com.Rh.Sistema.Entities.Empresa;
 import com.Rh.Sistema.Entities.Funcionario;
 import com.Rh.Sistema.Entities.UserRH;
@@ -41,6 +42,13 @@ public class EmpresaService {
                 .orElseThrow(() -> new RuntimeException("Empresa não encontrada"));
 
         return empresa.getFuncionarios();
+    }
+
+    public List<Departamento> listarDepartamentos(Long empresaId){
+        Empresa empresa = repository.findById(empresaId)
+                .orElseThrow(() -> new RuntimeException("Empresa não encontrada"));
+
+        return empresa.getDepartamentos();
     }
 
     private List<Funcionario> funcionariosEmpresa(Long empresaId){
