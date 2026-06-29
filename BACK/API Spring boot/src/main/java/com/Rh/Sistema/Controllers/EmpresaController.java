@@ -2,10 +2,7 @@ package com.Rh.Sistema.Controllers;
 
 import com.Rh.Sistema.DTOs.EmpresaPreviewDTO;
 import com.Rh.Sistema.DTOs.RelatorioFolhaSalarioDTO;
-import com.Rh.Sistema.Entities.Departamento;
-import com.Rh.Sistema.Entities.Empresa;
-import com.Rh.Sistema.Entities.Funcionario;
-import com.Rh.Sistema.Entities.UserRH;
+import com.Rh.Sistema.Entities.*;
 import com.Rh.Sistema.Services.EmpresaService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -57,6 +54,13 @@ public class EmpresaController {
     public List<Departamento> listarDepartamentos(@PathVariable Long id){
         return service.listarDepartamentos(id);
     }
+
+    @GetMapping("/{id}/cargos")
+    public List<Cargo> listarCargos(@PathVariable Long id){
+        return service.listarCargos(id);
+    }
+
+
 
 
     // em excluir colocar logica no service que so torne o status da empresa como inativo e n apague diretamente do banco

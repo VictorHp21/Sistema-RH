@@ -159,7 +159,57 @@ const App = {
     return await res.json();
   },
 
+  async getPositions() {
+    const res = await fetch(
+      `http://localhost:8080/empresa/${this.session.companyId}/cargos`
+    );
+
+    if (!res.ok) {
+      throw new Error("Erro ao carregar cargos");
+    }
+
+    return await res.json();
+  },
+
+  /* Função para criar cargo*/
+
+  async createPosition(payload) {
+    const res = await fetch(`http://localhost:8080/cargos/${this.session.companyId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) throw new Error("Erro ao criar cargo");
+
+    return await res.json();
+  },
+
+  async updatePosition(id, payload) {
+    const res = await fetch(`http://localhost:8080/cargos/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) throw new Error("Erro ao atualizar cargo");
+
+    return await res.json();
+  },
+
+  async deletePosition(id) {
+    const res = await fetch(`http://localhost:8080/cargos/${id}`, {
+      method: "DELETE"
+    });
+
+    if (!res.ok) throw new Error("Erro ao deletar cargo");
+  }
+
 };
+
+
+
+
 
 /* ==================== TOAST ==================== */
 const Toast = {

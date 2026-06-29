@@ -94,4 +94,11 @@ VALUES
 
 (22, 31, '33333333333', 3, 3, 'Carlos Souza', 7000.00, '2022-05-20', false, 1);
 
+
+INSERT INTO cargos (id, nome, empresa_id)
+VALUES
+(11, 'Gerente', 1);
+
+select *from cargos;
+
 select *from usuários;

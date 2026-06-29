@@ -111,7 +111,7 @@ async function renderDashboard() {
         <span class="quick-action-icon">🏢</span>
         <div class="quick-action-label">Departamentos</div>
       </a>
-      <a href="positions.html" class="quick-action" style="animation-delay:0.15s">
+      <a href="cargos.html" class="quick-action" style="animation-delay:0.15s">
         <span class="quick-action-icon">💼</span>
         <div class="quick-action-label">Cargos</div>
       </a>

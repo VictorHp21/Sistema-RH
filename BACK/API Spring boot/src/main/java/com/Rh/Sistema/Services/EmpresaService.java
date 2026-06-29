@@ -2,10 +2,7 @@ package com.Rh.Sistema.Services;
 
 import com.Rh.Sistema.DTOs.EmpresaPreviewDTO;
 import com.Rh.Sistema.DTOs.RelatorioFolhaSalarioDTO;
-import com.Rh.Sistema.Entities.Departamento;
-import com.Rh.Sistema.Entities.Empresa;
-import com.Rh.Sistema.Entities.Funcionario;
-import com.Rh.Sistema.Entities.UserRH;
+import com.Rh.Sistema.Entities.*;
 import com.Rh.Sistema.Repositories.EmpresaRepository;
 import com.Rh.Sistema.Repositories.UserRHRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +46,13 @@ public class EmpresaService {
                 .orElseThrow(() -> new RuntimeException("Empresa não encontrada"));
 
         return empresa.getDepartamentos();
+    }
+
+    public List<Cargo> listarCargos(Long empresaId){
+        Empresa empresa = repository.findById(empresaId)
+                .orElseThrow(() -> new RuntimeException("Empresa não encontrada"));
+
+        return empresa.getCargos();
     }
 
     private List<Funcionario> funcionariosEmpresa(Long empresaId){
