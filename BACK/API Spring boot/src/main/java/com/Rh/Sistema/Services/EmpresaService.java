@@ -3,6 +3,7 @@ package com.Rh.Sistema.Services;
 import com.Rh.Sistema.DTOs.EmpresaPreviewDTO;
 import com.Rh.Sistema.DTOs.RelatorioFolhaSalarioDTO;
 import com.Rh.Sistema.Entities.*;
+import com.Rh.Sistema.Repositories.CargoRepository;
 import com.Rh.Sistema.Repositories.EmpresaRepository;
 import com.Rh.Sistema.Repositories.UserRHRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +27,15 @@ public class EmpresaService {
     @Autowired
     private ImageUploadService imageUploadService;
 
-    public EmpresaService(EmpresaRepository repository, UserRHRepository userRHRepository, ImageUploadService imageUploadService){
+    @Autowired
+    private final CargoRepository cargoRepository;
+
+    public EmpresaService(EmpresaRepository repository, UserRHRepository userRHRepository,
+                          ImageUploadService imageUploadService, CargoRepository cargoRepository){
         this.repository = repository;
         this.userRHRepository = userRHRepository;
         this.imageUploadService = imageUploadService;
+        this.cargoRepository = cargoRepository;
     }
 
     // métodos de CRUD:
@@ -48,11 +54,13 @@ public class EmpresaService {
         return empresa.getDepartamentos();
     }
 
-    public List<Cargo> listarCargos(Long empresaId){
-        Empresa empresa = repository.findById(empresaId)
-                .orElseThrow(() -> new RuntimeException("Empresa não encontrada"));
+    public List<Cargo> listarCargos(Long empresaId) {
 
-        return empresa.getCargos();
+        if (!repository.existsById(empresaId)) {
+            throw new RuntimeException("Empresa não encontrada");
+        }
+
+        return cargoRepository.findByEmpresaIdAndExcluidoFalse(empresaId);
     }
 
     private List<Funcionario> funcionariosEmpresa(Long empresaId){
@@ -91,6 +99,9 @@ public class EmpresaService {
         if(repository.existsById(id)){
             Empresa empresa = repository.findById(id).get();
             empresa.setStatus(false);
+
+            repository.save(empresa);
+
             return true;
         }
 

@@ -25,7 +25,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 
+
 async function carregarDados() {
+
+  console.log(document.getElementById("global-loader"));
+
     App.showLoader("Carregando cargos...");
 
 
@@ -98,7 +102,7 @@ function renderPositionsPage() {
     <div class="stats-grid stagger" style="margin-bottom:24px">
       <div class="stat-card">
         <div class="stat-icon primary">💼</div>
-        <div class="stat-value">${cargos.length}</div>
+        <div class="stat-value" id="stat-total">${cargos.length}</div>
         <div class="stat-label">Total de cargos</div>
       </div>
 
@@ -110,13 +114,13 @@ function renderPositionsPage() {
 
       <div class="stat-card">
         <div class="stat-icon warning">👥</div>
-        <div class="stat-value">${totalOcupados}</div>
+        <div class="stat-value" id="stat-ocupados">${totalOcupados}</div>
         <div class="stat-label">Cargos ocupados</div>
       </div>
 
       <div class="stat-card">
         <div class="stat-icon secondary">📋</div>
-        <div class="stat-value">${cargos.length - totalOcupados}</div>
+        <div class="stat-value" id="stat-vagas">${cargos.length - totalOcupados}</div>
         <div class="stat-label">Vagas em aberto</div>
       </div>
     </div>
@@ -242,19 +246,16 @@ function renderPositionsPage() {
             <div style="display:flex;gap:16px">
 
               <label>
-                <input type="radio" name="pos-status" value="ATIVO" checked>
+                <input type="radio" name="pos-status" value="true" checked>
                 Ativo
               </label>
 
               <label>
-                <input type="radio" name="pos-status" value="INATIVO">
+                <input type="radio" name="pos-status" value="false">
                 Inativo
               </label>
 
-              <label>
-                <input type="radio" name="pos-status" value="CONGELADO">
-                Congelado
-              </label>
+              
 
             </div>
 
@@ -366,13 +367,7 @@ function renderPositionsList() {
         );
     }
 
-    // 🎚 filtro por nível
-    if (levelFilter) {
-        cargos = cargos.filter(c =>
-            c.nivel === levelFilter
-        );
-    }
-
+    
     // 🏢 filtro por departamento
     if (deptFilter) {
         cargos = cargos.filter(c =>
@@ -445,22 +440,18 @@ function renderCargoCard(cargo, index) {
         text: "var(--text-2)"
     };
 
-    const statusMap = {
-        ATIVO: {
-            badge: "badge-success",
-            label: "Ativo"
-        },
-        INATIVO: {
-            badge: "badge-secondary",
-            label: "Inativo"
-        },
-        CONGELADO: {
-            badge: "badge-warning",
-            label: "Congelado"
-        }
-    };
+    const status = cargo.status
+    ? {
+        badge: "badge-success",
+        label: "Ativo"
+      }
+    : {
+        badge: "badge-danger",
+        label: "Inativo"
+      };
 
-    const status = statusMap[cargo.status] || statusMap.ATIVO;
+
+    //const status = statusMap[cargo.status] || statusMap.ATIVO;
 
     return `
     <div class="pos-card"
@@ -487,10 +478,7 @@ function renderCargoCard(cargo, index) {
             ${status.label}
           </span>
 
-          <span class="badge"
-                style="background:${lc.bg};color:${lc.text};font-size:.7rem">
-            ${nivel}
-          </span>
+          
 
         </div>
 
@@ -561,7 +549,7 @@ function renderCargoCard(cargo, index) {
 
           <button
               class="btn btn-ghost btn-sm btn-icon"
-              onclick="deletePosition(${cargo.id})"
+              onclick="deletePosition(${cargo.id}, '${cargo.nome}')"
               title="Excluir"
               style="color:var(--danger)">
             🗑
@@ -852,7 +840,7 @@ async function savePosition() {
         salarioMaximo: Number(document.getElementById("pos-salary-max").value) || null,
         vagas: Number(document.getElementById("pos-vacancies").value) || 1,
         tipoContrato: document.getElementById("pos-contract").value,
-        status: document.querySelector("input[name='pos-status']:checked").value,
+        status: document.querySelector("input[name='pos-status']:checked").value === "true",
         departamentoId: document.getElementById("pos-dept")?.value
             ? Number(document.getElementById("pos-dept").value)
             : null,
@@ -865,7 +853,7 @@ async function savePosition() {
 
         if (posEditingId) {
 
-            resultado = await Api.cargos.atualizar(posEditingId, payload);
+            resultado = await App.updatePosition(posEditingId, payload);
 
             const index = _cargos.findIndex(c => c.id == posEditingId);
 
@@ -891,6 +879,7 @@ async function savePosition() {
 
     } catch (err) {
 
+      console.error(err);
         handleApiError(err, "Erro ao salvar cargo.");
 
     } finally {
@@ -925,7 +914,7 @@ async function deletePosition(id, nome) {
 
     try {
 
-        await Api.cargos.remover(id);
+        await App.deletePosition(id);
 
         _cargos = _cargos.filter(c => c.id != id);
 

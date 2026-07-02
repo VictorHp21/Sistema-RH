@@ -55,6 +55,7 @@ public class EmpresaController {
         return service.listarDepartamentos(id);
     }
 
+
     @GetMapping("/{id}/cargos")
     public List<Cargo> listarCargos(@PathVariable Long id){
         return service.listarCargos(id);

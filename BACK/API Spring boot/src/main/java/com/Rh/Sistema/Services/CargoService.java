@@ -29,12 +29,13 @@ public class CargoService {
                         new RuntimeException("Empresa não encontrada"));
 
         cargo.setEmpresa(empresa);
+        cargo.setExcluido(false);
 
         return cargoRepository.save(cargo);
     }
 
-    public List<Cargo> listar(){
-        return cargoRepository.findAll();
+    public List<Cargo> listar(Long id) {
+        return cargoRepository.findByEmpresaIdAndExcluidoFalse(id);
     }
 
     public Cargo buscarPorId(Long id){
@@ -42,4 +43,31 @@ public class CargoService {
                 .orElseThrow(() ->
                         new RuntimeException("Cargo não encontrado"));
     }
+
+
+    public Cargo editarCargo(Long id, Cargo cargo){
+        Cargo cargoExiste = cargoRepository.findById(id)
+                .orElseThrow(()-> new RuntimeException("Cargo não encontrado"));
+
+        cargoExiste.setNome(cargo.getNome());
+        cargoExiste.setStatus(cargo.getStatus());
+
+
+        return cargoRepository.save(cargoExiste);
+    }
+
+    public boolean excluirCargo(Long id){
+        if(cargoRepository.existsById(id)){
+            Cargo cargo = cargoRepository.findById(id).get();
+            cargo.setStatus(false);
+            cargo.setExcluido(true);
+
+            cargoRepository.save(cargo);
+
+            return true;
+        }
+
+        return false;
+    }
+
 }

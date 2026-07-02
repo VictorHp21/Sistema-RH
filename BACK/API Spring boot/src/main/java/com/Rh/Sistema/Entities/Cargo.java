@@ -13,6 +13,11 @@ public class Cargo {
 
     private String nome;
 
+    private Boolean status;
+
+    @Column(nullable = false)
+    private Boolean excluido = false;
+
     @ManyToOne
     @JoinColumn(name = "empresa_id")
     @JsonIgnore
@@ -35,6 +40,22 @@ public class Cargo {
         this.nome = nome;
     }
 
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
+
+    public Boolean getExcluido() {
+        return excluido;
+    }
+
+    public void setExcluido(Boolean excluido) {
+        this.excluido = excluido;
+    }
+
     public Empresa getEmpresa() {
         return empresa;
     }
@@ -42,4 +63,5 @@ public class Cargo {
     public void setEmpresa(Empresa empresa) {
         this.empresa = empresa;
     }
+
 }
