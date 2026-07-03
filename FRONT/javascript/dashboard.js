@@ -107,7 +107,7 @@ async function renderDashboard() {
         <span class="quick-action-icon">👤</span>
         <div class="quick-action-label">Novo Funcionário</div>
       </a>
-      <a href="departments.html" class="quick-action" style="animation-delay:0.1s">
+      <a href="departamentos.html" class="quick-action" style="animation-delay:0.1s">
         <span class="quick-action-icon">🏢</span>
         <div class="quick-action-label">Departamentos</div>
       </a>
@@ -125,7 +125,7 @@ async function renderDashboard() {
       <div class="card animate-in">
         <div class="card-header">
           <span class="card-title">Funcionários por Departamento</span>
-          <a href="departments.html" class="btn btn-ghost btn-sm">Ver todos</a>
+          <a href="departmentos.html" class="btn btn-ghost btn-sm">Ver todos</a>
         </div>
         ${deptStats.length === 0
       ? `<div class="empty-state">

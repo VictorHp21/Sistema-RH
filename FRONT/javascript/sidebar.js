@@ -11,7 +11,7 @@ function renderSidebar(activePage) {
     ]},
     { section: 'Pessoas', links: [
       { href: 'employees.html', icon: '👥', label: 'Funcionários' },
-      { href: 'departments.html', icon: '🏢', label: 'Departamentos' },
+      { href: 'departamentos.html', icon: '🏢', label: 'Departamentos' },
       { href: 'cargos.html', icon: '💼', label: 'Cargos' },
     ]},
     { section: 'Empresa', links: [

@@ -1,5 +1,6 @@
 package com.Rh.Sistema.Entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
@@ -23,6 +24,7 @@ public class Funcionario {
 
     @ManyToOne
     @JoinColumn(name = "departamento_id")
+    @JsonBackReference
     private Departamento departamento;
 
 

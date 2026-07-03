@@ -203,6 +203,41 @@ const App = {
     });
 
     if (!res.ok) throw new Error("Erro ao deletar cargo");
+  },
+
+  // funções para departamentos
+
+  
+  async createDepartament(payload) {
+    const res = await fetch(`http://localhost:8080/departamentos/${this.session.companyId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) throw new Error("Erro ao criar cargo");
+
+    return await res.json();
+  },
+
+  async updateDepartament(id, payload) {
+    const res = await fetch(`http://localhost:8080/departamentos/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) throw new Error("Erro ao atualizar departamento");
+
+    return await res.json();
+  },
+
+  async deleteDepartament(id) {
+    const res = await fetch(`http://localhost:8080/departamentos/${id}`, {
+      method: "DELETE"
+    });
+
+    if (!res.ok) throw new Error("Erro ao deletar cargo");
   }
 
 };

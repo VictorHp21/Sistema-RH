@@ -101,4 +101,12 @@ VALUES
 
 select *from cargos;
 
+select *from departamentos;
+
+select *from funcionarios;
+
+UPDATE cargos
+SET excluido = false
+WHERE excluido IS NULL;
+
 select *from usuários;

@@ -1,5 +1,6 @@
 package com.Rh.Sistema.Entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
@@ -12,6 +13,18 @@ public class Departamento {
     private Long id;
 
     private String nome;
+
+    private Boolean status;
+
+    private String descricao;
+
+    @ManyToOne
+    @JoinColumn(name = "gerente_id")
+    private Funcionario gerente;
+
+    private String icone;
+
+    private String cor;
 
     @ManyToOne
     @JoinColumn(name = "empresa_id")
@@ -32,6 +45,46 @@ public class Departamento {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public Funcionario getGerente() {
+        return gerente;
+    }
+
+    public void setGerente(Funcionario gerente) {
+        this.gerente = gerente;
+    }
+
+    public String getIcone() {
+        return icone;
+    }
+
+    public void setIcone(String icone) {
+        this.icone = icone;
+    }
+
+    public String getCor() {
+        return cor;
+    }
+
+    public void setCor(String cor) {
+        this.cor = cor;
     }
 
     public Empresa getEmpresa() {

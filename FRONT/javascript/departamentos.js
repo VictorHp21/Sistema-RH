@@ -1,13 +1,12 @@
-cat > /home/claude/rh-system/js/departments.js << 'ENDOFFILE'
 /* ==================== DEPARTMENTS PAGE ==================== */
 let deptEditingId = null;
 
-const DEPT_ICONS = ['🏢','💻','📊','🎨','⚙','📦','💰','🌐','🔬','📣','🏥','🎓','🛡','🚀'];
-const DEPT_COLORS = ['#4F46E5','#059669','#D97706','#7C3AED','#DC2626','#0891B2','#BE185D','#2563EB'];
+const DEPT_ICONS = ['🏢', '💻', '📊', '🎨', '⚙', '📦', '💰', '🌐', '🔬', '📣', '🏥', '🎓', '🛡', '🚀'];
+const DEPT_COLORS = ['#4F46E5', '#059669', '#D97706', '#7C3AED', '#DC2626', '#0891B2', '#BE185D', '#2563EB'];
 
 // Cache em memória (evita re-fetch desnecessário)
 let _departamentos = [];
-let _funcionarios  = [];
+let _funcionarios = [];
 
 window.addEventListener('DOMContentLoaded', async () => {
   if (!App.requireAuth()) return;
@@ -19,21 +18,28 @@ window.addEventListener('DOMContentLoaded', async () => {
    CARREGAMENTO INICIAL
 -------------------------------------------------------- */
 async function carregarDados() {
-  const empresaId = App.session.companyId;
-  showPageLoading(true);
+  App.showLoader("Carregando departamentos...");
+
   try {
-    const [depts, funcs] = await Promise.all([
-      Api.departamentos.listarPorEmpresa(empresaId),
-      Api.funcionarios.listarPorEmpresa(empresaId),
+    const [departamentos, funcionarios] = await Promise.all([
+      App.getDepartments(),
+      App.getEmployees()
     ]);
-    _departamentos = depts  || [];
-    _funcionarios  = funcs  || [];
-  } catch (err) {
-    handleApiError(err, 'Não foi possível carregar os departamentos.');
+
+    // filtrar por status
+    _departamentos = (departamentos || []).filter(d => d.status !== false);
+    _funcionarios = funcionarios;
+
+  } catch (error) {
+    console.error(error);
+
+    Toast.error("Não foi possível carregar os departamentos.");
+
     _departamentos = [];
-    _funcionarios  = [];
+    _funcionarios = [];
+
   } finally {
-    showPageLoading(false);
+    App.hideLoader();
   }
 }
 
@@ -97,7 +103,15 @@ function renderDeptPage() {
 
           <div class="form-group">
             <label class="form-label">Gerente / Responsável</label>
-            <input type="text" id="dept-manager" class="form-input" placeholder="Nome do responsável" />
+
+            <select id="dept-manager" class="form-select">
+              <option value="">Selecione um gerente</option>
+              ${_funcionarios.map(f => `
+                <option value="${f.id}">
+                  ${f.nome}
+                </option>
+              `).join('')}
+            </select>
           </div>
 
           <div class="form-group">
@@ -156,8 +170,8 @@ function renderDeptGrid() {
         <div class="empty-state-title">${search ? 'Nenhum resultado' : 'Nenhum departamento cadastrado'}</div>
         <div class="empty-state-desc">
           ${search
-            ? 'Tente outro termo de busca.'
-            : 'Organize sua empresa criando o primeiro departamento.'}
+        ? 'Tente outro termo de busca.'
+        : 'Organize sua empresa criando o primeiro departamento.'}
         </div>
         ${!search ? `<button class="btn btn-primary" onclick="openNewDept()">+ Criar Primeiro Departamento</button>` : ''}
       </div>`;
@@ -165,13 +179,13 @@ function renderDeptGrid() {
   }
 
   container.innerHTML = lista.map((d, i) => {
-    const nome      = d.nome || d.name || 'Sem nome';
+    const nome = d.nome || d.name || 'Sem nome';
     const descricao = d.descricao || d.description || '';
-    const gerente   = d.gerente || d.manager || '';
-    const icon      = d.icone || d.icon || '🏢';
-    const color     = d.cor || d.color || DEPT_COLORS[0];
-    const empCount  = _funcionarios.filter(f =>
-      (f.departamentoId || f.departmentId) === d.id
+    const gerente = d.gerente?.nome || "";
+    const icon = d.icone || d.icon || '🏢';
+    const color = d.cor || d.color || DEPT_COLORS[0];
+    const empCount = _funcionarios.filter(f =>
+      f.departamento?.id === d.id
     ).length;
 
     return `
@@ -189,7 +203,7 @@ function renderDeptGrid() {
           <span class="dept-emp-count">👥 ${empCount} funcionário${empCount !== 1 ? 's' : ''}</span>
           <div class="dept-actions">
             <button class="btn btn-ghost btn-sm btn-icon" onclick="editDept('${d.id}')" title="Editar">✏</button>
-            <button class="btn btn-ghost btn-sm btn-icon" onclick="deleteDept('${d.id}', '${nome.replace(/'/g,"\\'")})"
+            <button class="btn btn-ghost btn-sm btn-icon" onclick="deleteDept(${d.id}, \`${nome || ''}\`)"
               title="Remover" style="color:var(--danger)">🗑</button>
           </div>
         </div>
@@ -220,19 +234,36 @@ function openNewDept() {
 /* --------------------------------------------------------
    MODAL — EDITAR
 -------------------------------------------------------- */
+
+function preencherSelectGerentes() {
+  const select = document.getElementById("dept-manager");
+  if (!select) return;
+
+  select.innerHTML = `
+    <option value="">Selecione um gerente</option>
+    ${_funcionarios.map(f => `
+      <option value="${f.id}">${f.nome}</option>
+    `).join('')}
+  `;
+}
+
+
 function editDept(id) {
   const d = _departamentos.find(dep => String(dep.id) === String(id));
   if (!d) return;
 
+  preencherSelectGerentes();
+
   deptEditingId = id;
   document.getElementById('modal-dept-title').textContent = 'Editar Departamento';
   document.getElementById('btn-save-dept').textContent = 'Salvar Alterações';
-  document.getElementById('dept-name').value    = d.nome || d.name || '';
-  document.getElementById('dept-desc').value    = d.descricao || d.description || '';
-  document.getElementById('dept-manager').value = d.gerente || d.manager || '';
+  document.getElementById('dept-name').value = d.nome || d.name || '';
+  document.getElementById('dept-desc').value = d.descricao || d.description || '';
+  document.getElementById('dept-manager').value =
+    d.gerente?.id || "";
 
-  const icon  = d.icone || d.icon || DEPT_ICONS[0];
-  const color = d.cor   || d.color || DEPT_COLORS[0];
+  const icon = d.icone || d.icon || DEPT_ICONS[0];
+  const color = d.cor || d.color || DEPT_COLORS[0];
   setIconSelected(icon);
   setColorSelected(color);
   Modal.open('modal-dept');
@@ -252,27 +283,32 @@ async function saveDept() {
   const payload = {
     nome,
     descricao: document.getElementById('dept-desc')?.value.trim() || null,
-    gerente:   document.getElementById('dept-manager')?.value.trim() || null,
-    icone:     document.getElementById('dept-icon')?.value || DEPT_ICONS[0],
-    cor:       document.getElementById('dept-color')?.value || DEPT_COLORS[0],
+    gerente: document.getElementById("dept-manager").value
+      ? {
+        id: Number(document.getElementById("dept-manager").value)
+      }
+      : null,
+    icone: document.getElementById('dept-icon')?.value || DEPT_ICONS[0],
+    cor: document.getElementById('dept-color')?.value || DEPT_COLORS[0],
     empresaId: App.session.companyId,
   };
 
   try {
     if (deptEditingId) {
-      const atualizado = await Api.departamentos.atualizar(deptEditingId, payload);
+      const atualizado = await App.updateDepartament(deptEditingId, payload);
       const idx = _departamentos.findIndex(d => String(d.id) === String(deptEditingId));
       if (idx > -1) _departamentos[idx] = atualizado;
       Toast.success('Departamento atualizado!', nome);
     } else {
-      const criado = await Api.departamentos.criar(payload);
+      const criado = await App.createDepartament(payload);
       _departamentos.push(criado);
       Toast.success('Departamento criado!', nome);
     }
     Modal.close('modal-dept');
     renderDeptGrid();
   } catch (err) {
-    handleApiError(err, 'Não foi possível salvar o departamento.');
+    Toast.error('Não foi possível salvar o departamento.');
+    console.error(err);
   } finally {
     btn.disabled = false;
     btn.textContent = deptEditingId ? 'Salvar Alterações' : 'Salvar Departamento';
@@ -286,17 +322,16 @@ async function deleteDept(id, nome) {
   if (!confirm(`Remover o departamento "${nome}"?\nOs funcionários perderão o vínculo.`)) return;
 
   try {
-    await Api.departamentos.remover(id);
-    _departamentos = _departamentos.filter(d => String(d.id) !== String(id));
-    // Desvincula funcionários do cache local
-    _funcionarios.forEach(f => {
-      if (String(f.departamentoId || f.departmentId) === String(id)) {
-        f.departamentoId = null;
-        f.departmentId   = null;
-      }
-    });
+    await App.deleteDepartament(id);
+
+    _departamentos = _departamentos.filter(d =>
+      String(d.id) !== String(id)
+    );
+
     Toast.success('Departamento removido');
+
     renderDeptGrid();
+
   } catch (err) {
     handleApiError(err, 'Não foi possível remover o departamento.');
   }

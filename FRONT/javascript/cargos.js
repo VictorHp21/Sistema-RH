@@ -3,14 +3,14 @@ let posEditingId = null;
 const LEVELS = [];
 
 const LEVEL_COLORS = {
-    'Júnior': { bg: 'rgba(14,165,233,0.12)', text: '#38BDF8' },
-    'Pleno': { bg: 'rgba(79,70,229,0.12)', text: '#818CF8' },
-    'Sênior': { bg: 'rgba(16,185,129,0.12)', text: '#34D399' },
-    'Especialista': { bg: 'rgba(139,92,246,0.12)', text: '#A78BFA' },
-    'Coordenador': { bg: 'rgba(245,158,11,0.12)', text: '#FCD34D' },
-    'Gerente': { bg: 'rgba(249,115,22,0.12)', text: '#FB923C' },
-    'Diretor': { bg: 'rgba(239,68,68,0.12)', text: '#F87171' },
-    'C-Level': { bg: 'rgba(236,72,153,0.12)', text: '#F472B6' },
+  'Júnior': { bg: 'rgba(14,165,233,0.12)', text: '#38BDF8' },
+  'Pleno': { bg: 'rgba(79,70,229,0.12)', text: '#818CF8' },
+  'Sênior': { bg: 'rgba(16,185,129,0.12)', text: '#34D399' },
+  'Especialista': { bg: 'rgba(139,92,246,0.12)', text: '#A78BFA' },
+  'Coordenador': { bg: 'rgba(245,158,11,0.12)', text: '#FCD34D' },
+  'Gerente': { bg: 'rgba(249,115,22,0.12)', text: '#FB923C' },
+  'Diretor': { bg: 'rgba(239,68,68,0.12)', text: '#F87171' },
+  'C-Level': { bg: 'rgba(236,72,153,0.12)', text: '#F472B6' },
 };
 
 // Dados da api
@@ -19,10 +19,11 @@ let _departamentos = [];
 let _funcionarios = [];
 
 window.addEventListener('DOMContentLoaded', async () => {
-    if (!App.requireAuth()) return;
-    await carregarDados();
-    renderPositionsPage();
+  if (!App.requireAuth()) return;
+  await carregarDados();
+  renderPositionsPage();
 });
+
 
 
 
@@ -30,47 +31,48 @@ async function carregarDados() {
 
   console.log(document.getElementById("global-loader"));
 
-    App.showLoader("Carregando cargos...");
+  App.showLoader("Carregando cargos...");
 
 
-    try {
-        [cargos, departamentos, funcionarios] = await Promise.all([
-            App.getPositions(),
-            App.getDepartments(),
-            App.getEmployees()
-        ]);
+  try {
+    [cargos, departamentos, funcionarios] = await Promise.all([
+      App.getPositions(),
+      App.getDepartments(),
+      App.getEmployees()
+    ]);
 
-    } catch (error) {
-        console.error(error);
+  } catch (error) {
+    console.error(error);
 
-        Toast.error("Não foi possível carregar os dados.");
+    Toast.error("Não foi possível carregar os dados.");
 
-        cargos = [];
-        departamentos = [];
-        funcionarios = [];
+    cargos = [];
+    departamentos = [];
+    funcionarios = [];
 
-    } finally {
-        App.hideLoader();
+  } finally {
+    App.hideLoader();
 
-        _cargos = cargos;
-        _departamentos = departamentos;
-        _funcionarios = funcionarios;
-    }
+    _cargos = cargos;
+    // filtrar por status
+    _departamentos = (departamentos || []).filter(d => d.status !== false);
+    _funcionarios = funcionarios;
+  }
 }
 
 function showLoading(on) {
-    let el = document.getElementById('page-loading');
-    if (on) {
-        if (!el) {
-            el = document.createElement('div');
-            el.id = 'page-loading';
-            el.innerHTML = `<div class="loading-spinner"></div><span>Carregando...</span>`;
-            el.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;gap:12px;background:rgba(15,15,23,0.7);backdrop-filter:blur(4px);z-index:9999;color:var(--text-2);font-size:0.9rem';
-            document.body.appendChild(el);
-        }
-    } else {
-        el?.remove();
+  let el = document.getElementById('page-loading');
+  if (on) {
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'page-loading';
+      el.innerHTML = `<div class="loading-spinner"></div><span>Carregando...</span>`;
+      el.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;gap:12px;background:rgba(15,15,23,0.7);backdrop-filter:blur(4px);z-index:9999;color:var(--text-2);font-size:0.9rem';
+      document.body.appendChild(el);
     }
+  } else {
+    el?.remove();
+  }
 }
 
 /* --------------------------------------------------------
@@ -78,13 +80,13 @@ function showLoading(on) {
 -------------------------------------------------------- */
 function renderPositionsPage() {
 
-    const deptOptions = departamentos.map(d =>
-        `<option value="${d.id}">${d.nome}</option>`
-    ).join('');
+  const deptOptions = departamentos.map(d =>
+    `<option value="${d.id}">${d.nome}</option>`
+  ).join('');
 
-    const totalOcupados = countOcupados();
+  const totalOcupados = countOcupados();
 
-    const content = `
+  const content = `
     <div class="page-header animate-in">
       <div>
         <div class="page-title">Cargos</div>
@@ -108,7 +110,7 @@ function renderPositionsPage() {
 
       <div class="stat-card">
         <div class="stat-icon success">🏢</div>
-        <div class="stat-value">${departamentos.length}</div>
+          <div class="stat-value">${departamentos.filter(d => d.status !== false).length}</div>
         <div class="stat-label">Departamentos</div>
       </div>
 
@@ -164,7 +166,7 @@ function renderPositionsPage() {
 
             ${departamentos.length === 0
 
-            ? `
+      ? `
                   <div class="dept-empty-notice">
                     <span>⚠ Nenhum departamento cadastrado.</span>
                     <a href="departments.html" class="btn btn-ghost btn-sm">
@@ -173,13 +175,13 @@ function renderPositionsPage() {
                   </div>
                 `
 
-            : `
+      : `
                   <select id="pos-dept" class="form-select">
                     <option value="">Sem departamento</option>
                     ${deptOptions}
                   </select>
                 `
-        }
+    }
 
           </div>
 
@@ -285,15 +287,15 @@ function renderPositionsPage() {
     </div>
   `;
 
-    mountAppShell(
-        'positions.html',
-        'Cargos',
-        'Estrutura de cargos e vagas',
-        content
-    );
+  mountAppShell(
+    'positions.html',
+    'Cargos',
+    'Estrutura de cargos e vagas',
+    content
+  );
 
-    injectPositionStyles();
-    renderPositionsList();
+  injectPositionStyles();
+  renderPositionsList();
 }
 
 /* --------------------------------------------------------
@@ -301,44 +303,44 @@ function renderPositionsPage() {
 -------------------------------------------------------- */
 
 function getNome(obj) {
-    return obj?.nome || '';
+  return obj?.nome || '';
 }
 
 function getDeptNome(id) {
-    const dept = _departamentos.find(d => d.id == id);
-    return dept ? dept.nome : 'Sem departamento';
+  const dept = _departamentos.find(d => d.id == id);
+  return dept ? dept.nome : 'Sem departamento';
 }
 
 function countOcupados() {
-    return _cargos.filter(cargo =>
-        _funcionarios.some(func => func.cargo?.id === cargo.id)
-    ).length;
+  return _cargos.filter(cargo =>
+    _funcionarios.some(func => func.cargo?.id === cargo.id)
+  ).length;
 }
 
 function getFuncionariosNoCargo(cargoId) {
-    return _funcionarios.filter(func =>
-        func.cargo?.id === cargoId
-    );
+  return _funcionarios.filter(func =>
+    func.cargo?.id === cargoId
+  );
 }
 
 function updateStats() {
-    const ocupados = countOcupados();
-    const total = _cargos.length;
+  const ocupados = countOcupados();
+  const total = _cargos.length;
 
-    document.getElementById("stat-total").textContent = total;
-    document.getElementById("stat-ocupados").textContent = ocupados;
-    document.getElementById("stat-vagas").textContent = total - ocupados;
+  document.getElementById("stat-total").textContent = total;
+  document.getElementById("stat-ocupados").textContent = ocupados;
+  document.getElementById("stat-vagas").textContent = total - ocupados;
 
-    const sub = document.getElementById("pos-subtitle");
-    sub.textContent = `${total} cargo${total !== 1 ? "s" : ""} cadastrado${total !== 1 ? "s" : ""}`;
+  const sub = document.getElementById("pos-subtitle");
+  sub.textContent = `${total} cargo${total !== 1 ? "s" : ""} cadastrado${total !== 1 ? "s" : ""}`;
 }
 
 function getLevels() {
-    return [...new Set(
-        cargos
-            .map(c => c.nivel || c.level)
-            .filter(Boolean)
-    )].sort();
+  return [...new Set(
+    cargos
+      .map(c => c.nivel || c.level)
+      .filter(Boolean)
+  )].sort();
 }
 
 /* --------------------------------------------------------
@@ -347,67 +349,67 @@ function getLevels() {
 
 function renderPositionsList() {
 
-    const container = document.getElementById("positions-container");
+  const container = document.getElementById("positions-container");
 
-    const search =
-        document.getElementById("pos-search")?.value.toLowerCase() || "";
+  const search =
+    document.getElementById("pos-search")?.value.toLowerCase() || "";
 
-    const levelFilter =
-        document.getElementById("pos-filter-level")?.value || "";
+  const levelFilter =
+    document.getElementById("pos-filter-level")?.value || "";
 
-    const deptFilter =
-        document.getElementById("pos-filter-dept")?.value || "";
+  const deptFilter =
+    document.getElementById("pos-filter-dept")?.value || "";
 
-    let cargos = [..._cargos];
+  let cargos = [..._cargos];
 
-    // 🔎 filtro por nome
-    if (search) {
-        cargos = cargos.filter(c =>
-            c.nome.toLowerCase().includes(search)
-        );
-    }
+  // 🔎 filtro por nome
+  if (search) {
+    cargos = cargos.filter(c =>
+      c.nome.toLowerCase().includes(search)
+    );
+  }
 
-    
-    // 🏢 filtro por departamento
-    if (deptFilter) {
-        cargos = cargos.filter(c =>
-            String(c.departamento?.id) === deptFilter
-        );
-    }
 
-    // ❌ vazio
-    if (cargos.length === 0) {
-        container.innerHTML = `
+  // 🏢 filtro por departamento
+  if (deptFilter) {
+    cargos = cargos.filter(c =>
+      String(c.departamento?.id) === deptFilter
+    );
+  }
+
+  // ❌ vazio
+  if (cargos.length === 0) {
+    container.innerHTML = `
             <div class="empty-state animate-in">
                 <div class="empty-state-icon">💼</div>
 
                 <div class="empty-state-title">
                     ${search || levelFilter || deptFilter
-                ? "Nenhum resultado encontrado"
-                : "Nenhum cargo cadastrado"}
+        ? "Nenhum resultado encontrado"
+        : "Nenhum cargo cadastrado"}
                 </div>
 
                 <div class="empty-state-desc">
                     ${search || levelFilter || deptFilter
-                ? "Tente alterar os filtros."
-                : "Cadastre o primeiro cargo da empresa."}
+        ? "Tente alterar os filtros."
+        : "Cadastre o primeiro cargo da empresa."}
                 </div>
 
                 ${!search && !levelFilter && !deptFilter
-                ? `<button class="btn btn-primary" onclick="openNewPosition()">
+        ? `<button class="btn btn-primary" onclick="openNewPosition()">
                          + Criar Cargo
                        </button>`
-                : ""
-            }
+        : ""
+      }
             </div>
         `;
-        return;
-    }
+    return;
+  }
 
-    // 🚀 RENDER SIMPLES (SEM AGRUPAMENTO)
-    container.innerHTML = cargos
-        .map((cargo, i) => renderCargoCard(cargo, i))
-        .join("");
+  // 🚀 RENDER SIMPLES (SEM AGRUPAMENTO)
+  container.innerHTML = cargos
+    .map((cargo, i) => renderCargoCard(cargo, i))
+    .join("");
 }
 /* --------------------------------------------------------
    CARD DE CARGO
@@ -415,45 +417,45 @@ function renderPositionsList() {
 
 function renderCargoCard(cargo, index) {
 
-    const nivel = cargo.nivel || "Pleno";
-    const nome = cargo.nome;
+  const nivel = cargo.nivel || "Pleno";
+  const nome = cargo.nome;
 
-    const deptNome = cargo.departamento
-        ? cargo.departamento.nome
-        : "Sem departamento";
+  const deptNome = cargo.departamento
+    ? cargo.departamento.nome
+    : "Sem departamento";
 
-    const vagas = cargo.vagas || 0;
+  const vagas = cargo.vagas || 0;
 
-    const funcionarios = getFuncionariosNoCargo(cargo.id);
+  const funcionarios = getFuncionariosNoCargo(cargo.id);
 
-    const preenchidas = funcionarios.length;
+  const preenchidas = funcionarios.length;
 
-    const emAberto = Math.max(0, vagas - preenchidas);
+  const emAberto = Math.max(0, vagas - preenchidas);
 
-    const fillPct =
-        vagas > 0
-            ? Math.min(100, Math.round((preenchidas / vagas) * 100))
-            : 0;
+  const fillPct =
+    vagas > 0
+      ? Math.min(100, Math.round((preenchidas / vagas) * 100))
+      : 0;
 
-    const lc = LEVEL_COLORS[nivel] || {
-        bg: "rgba(255,255,255,.05)",
-        text: "var(--text-2)"
+  const lc = LEVEL_COLORS[nivel] || {
+    bg: "rgba(255,255,255,.05)",
+    text: "var(--text-2)"
+  };
+
+  const status = cargo.status
+    ? {
+      badge: "badge-success",
+      label: "Ativo"
+    }
+    : {
+      badge: "badge-danger",
+      label: "Inativo"
     };
 
-    const status = cargo.status
-    ? {
-        badge: "badge-success",
-        label: "Ativo"
-      }
-    : {
-        badge: "badge-danger",
-        label: "Inativo"
-      };
 
+  //const status = statusMap[cargo.status] || statusMap.ATIVO;
 
-    //const status = statusMap[cargo.status] || statusMap.ATIVO;
-
-    return `
+  return `
     <div class="pos-card"
          style="animation-delay:${index * 0.04}s"
          onclick="openPositionDetail(${cargo.id})">
@@ -516,18 +518,18 @@ function renderCargoCard(cargo, index) {
         </div>
 
         ${emAberto > 0
-            ? `<div style="font-size:.73rem;color:var(--success);margin-top:5px">
+      ? `<div style="font-size:.73rem;color:var(--success);margin-top:5px">
                  ✦ ${emAberto} vaga${emAberto !== 1 ? "s" : ""} em aberto
                </div>`
-            : ""
-        }
+      : ""
+    }
 
         ${preenchidas >= vagas && vagas > 0
-            ? `<div style="font-size:.73rem;color:var(--accent);margin-top:5px">
+      ? `<div style="font-size:.73rem;color:var(--accent);margin-top:5px">
                  ⬛ Cargo completo
                </div>`
-            : ""
-        }
+      : ""
+    }
 
       </div>
 
@@ -567,30 +569,30 @@ function renderCargoCard(cargo, index) {
    MODAL DETALHE
 -------------------------------------------------------- */
 function openPositionDetail(id) {
-    const cargo = _cargos.find(c => String(c.id) === String(id));
-    if (!cargo) return;
+  const cargo = _cargos.find(c => String(c.id) === String(id));
+  if (!cargo) return;
 
-    const departamento = cargo.departamento
-        ? cargo.departamento.nome
-        : "Sem departamento";
+  const departamento = cargo.departamento
+    ? cargo.departamento.nome
+    : "Sem departamento";
 
-    const funcionarios = getFuncionariosNoCargo(cargo.id);
+  const funcionarios = getFuncionariosNoCargo(cargo.id);
 
-    const vagas = cargo.vagas || 0;
-    const preenchidas = funcionarios.length;
+  const vagas = cargo.vagas || 0;
+  const preenchidas = funcionarios.length;
 
-    const salarioMin = cargo.salarioMinimo;
-    const salarioMax = cargo.salarioMaximo;
+  const salarioMin = cargo.salarioMinimo;
+  const salarioMax = cargo.salarioMaximo;
 
-    const statusMap = {
-        ATIVO: { badge: "badge-success", label: "Ativo" },
-        INATIVO: { badge: "badge-secondary", label: "Inativo" },
-        CONGELADO: { badge: "badge-warning", label: "Congelado" }
-    };
+  const statusMap = {
+    ATIVO: { badge: "badge-success", label: "Ativo" },
+    INATIVO: { badge: "badge-secondary", label: "Inativo" },
+    CONGELADO: { badge: "badge-warning", label: "Congelado" }
+  };
 
-    const status = statusMap[cargo.status] || statusMap.ATIVO;
+  const status = statusMap[cargo.status] || statusMap.ATIVO;
 
-    document.getElementById("pos-detail-content").innerHTML = `
+  document.getElementById("pos-detail-content").innerHTML = `
     <div class="modal-header">
       <span class="modal-title">${cargo.nome}</span>
       <button class="modal-close"
@@ -717,11 +719,11 @@ function openPositionDetail(id) {
     </div>
   `;
 
-    Modal.open("modal-pos-detail");
+  Modal.open("modal-pos-detail");
 }
 
 function detailBox(label, value) {
-    return `
+  return `
     <div style="
       background:var(--bg-3);
       border-radius:var(--radius-sm);
@@ -752,34 +754,34 @@ function detailBox(label, value) {
 -------------------------------------------------------- */
 function openNewPosition() {
 
-    posEditingId = null;
+  posEditingId = null;
 
-    document.getElementById('modal-pos-title').textContent = 'Novo Cargo';
-    document.getElementById('btn-save-pos').textContent = 'Salvar Cargo';
+  document.getElementById('modal-pos-title').textContent = 'Novo Cargo';
+  document.getElementById('btn-save-pos').textContent = 'Salvar Cargo';
 
-    const fieldsToClear = [
-        'pos-name',
-        'pos-salary-min',
-        'pos-salary-max',
-        'pos-description'
-    ];
+  const fieldsToClear = [
+    'pos-name',
+    'pos-salary-min',
+    'pos-salary-max',
+    'pos-description'
+  ];
 
-    fieldsToClear.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-    });
+  fieldsToClear.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
 
-    document.getElementById('pos-vacancies').value = '1';
-    document.getElementById('pos-dept').value = '';
-    document.getElementById('pos-contract').value = 'CLT';
+  document.getElementById('pos-vacancies').value = '1';
+  document.getElementById('pos-dept').value = '';
+  document.getElementById('pos-contract').value = 'CLT';
 
-    const radio = document.querySelector(
-        'input[name="pos-status"][value="ATIVO"]'
-    );
+  const radio = document.querySelector(
+    'input[name="pos-status"][value="ATIVO"]'
+  );
 
-    if (radio) radio.checked = true;
+  if (radio) radio.checked = true;
 
-    Modal.open('modal-position');
+  Modal.open('modal-position');
 }
 
 /* --------------------------------------------------------
@@ -787,33 +789,33 @@ function openNewPosition() {
 -------------------------------------------------------- */
 async function editPosition(id) {
 
-    const cargo = _cargos.find(c => String(c.id) === String(id));
-    if (!cargo) return;
+  const cargo = _cargos.find(c => String(c.id) === String(id));
+  if (!cargo) return;
 
-    posEditingId = id;
+  posEditingId = id;
 
-    document.getElementById("modal-pos-title").textContent = "Editar Cargo";
-    document.getElementById("btn-save-pos").textContent = "Salvar Alterações";
+  document.getElementById("modal-pos-title").textContent = "Editar Cargo";
+  document.getElementById("btn-save-pos").textContent = "Salvar Alterações";
 
-    document.getElementById("pos-name").value = cargo.nome;
-    document.getElementById("pos-salary-min").value = cargo.salarioMinimo ?? "";
-    document.getElementById("pos-salary-max").value = cargo.salarioMaximo ?? "";
-    document.getElementById("pos-description").value = cargo.descricao ?? "";
-    document.getElementById("pos-vacancies").value = cargo.vagas ?? 1;
-    document.getElementById("pos-contract").value = cargo.tipoContrato ?? "CLT";
+  document.getElementById("pos-name").value = cargo.nome;
+  document.getElementById("pos-salary-min").value = cargo.salarioMinimo ?? "";
+  document.getElementById("pos-salary-max").value = cargo.salarioMaximo ?? "";
+  document.getElementById("pos-description").value = cargo.descricao ?? "";
+  document.getElementById("pos-vacancies").value = cargo.vagas ?? 1;
+  document.getElementById("pos-contract").value = cargo.tipoContrato ?? "CLT";
 
-    const dept = document.getElementById("pos-dept");
-    if (dept) {
-        dept.value = cargo.departamento?.id ?? "";
-    }
+  const dept = document.getElementById("pos-dept");
+  if (dept) {
+    dept.value = cargo.departamento?.id ?? "";
+  }
 
-    const radio = document.querySelector(
-        `input[name="pos-status"][value="${cargo.status}"]`
-    );
+  const radio = document.querySelector(
+    `input[name="pos-status"][value="${cargo.status}"]`
+  );
 
-    if (radio) radio.checked = true;
+  if (radio) radio.checked = true;
 
-    Modal.open("modal-position");
+  Modal.open("modal-position");
 }
 
 /* --------------------------------------------------------
@@ -821,87 +823,87 @@ async function editPosition(id) {
 -------------------------------------------------------- */
 async function savePosition() {
 
-    const nome = document.getElementById("pos-name").value.trim();
+  const nome = document.getElementById("pos-name").value.trim();
 
-    if (!nome) {
-        Toast.error("Informe o nome do cargo.");
-        return;
+  if (!nome) {
+    Toast.error("Informe o nome do cargo.");
+    return;
+  }
+
+  const btn = document.getElementById("btn-save-pos");
+
+  btn.disabled = true;
+  btn.textContent = "Salvando...";
+
+  const payload = {
+    nome,
+    descricao: document.getElementById("pos-description").value,
+    salarioMinimo: Number(document.getElementById("pos-salary-min").value) || null,
+    salarioMaximo: Number(document.getElementById("pos-salary-max").value) || null,
+    vagas: Number(document.getElementById("pos-vacancies").value) || 1,
+    tipoContrato: document.getElementById("pos-contract").value,
+    status: document.querySelector("input[name='pos-status']:checked").value === "true",
+    departamentoId: document.getElementById("pos-dept")?.value
+      ? Number(document.getElementById("pos-dept").value)
+      : null,
+    empresaId: App.session.companyId
+  };
+
+  try {
+
+    let resultado;
+
+    if (posEditingId) {
+
+      resultado = await App.updatePosition(posEditingId, payload);
+
+      const index = _cargos.findIndex(c => c.id == posEditingId);
+
+      if (index !== -1) {
+        _cargos[index] = resultado;
+      }
+
+      Toast.success("Cargo atualizado!");
+
+    } else {
+
+      resultado = await App.createPosition(payload);
+
+      _cargos.push(resultado);
+
+      Toast.success("Cargo criado!");
     }
 
-    const btn = document.getElementById("btn-save-pos");
+    Modal.close("modal-position");
 
-    btn.disabled = true;
-    btn.textContent = "Salvando...";
+    updateStats();
+    renderPositionsList();
 
-    const payload = {
-        nome,
-        descricao: document.getElementById("pos-description").value,
-        salarioMinimo: Number(document.getElementById("pos-salary-min").value) || null,
-        salarioMaximo: Number(document.getElementById("pos-salary-max").value) || null,
-        vagas: Number(document.getElementById("pos-vacancies").value) || 1,
-        tipoContrato: document.getElementById("pos-contract").value,
-        status: document.querySelector("input[name='pos-status']:checked").value === "true",
-        departamentoId: document.getElementById("pos-dept")?.value
-            ? Number(document.getElementById("pos-dept").value)
-            : null,
-        empresaId: App.session.companyId
-    };
+  } catch (err) {
 
-    try {
+    console.error(err);
+    handleApiError(err, "Erro ao salvar cargo.");
 
-        let resultado;
+  } finally {
 
-        if (posEditingId) {
-
-            resultado = await App.updatePosition(posEditingId, payload);
-
-            const index = _cargos.findIndex(c => c.id == posEditingId);
-
-            if (index !== -1) {
-                _cargos[index] = resultado;
-            }
-
-            Toast.success("Cargo atualizado!");
-
-        } else {
-
-            resultado = await App.createPosition(payload);
-
-            _cargos.push(resultado);
-
-            Toast.success("Cargo criado!");
-        }
-
-        Modal.close("modal-position");
-
-        updateStats();
-        renderPositionsList();
-
-    } catch (err) {
-
-      console.error(err);
-        handleApiError(err, "Erro ao salvar cargo.");
-
-    } finally {
-
-        btn.disabled = false;
-        btn.textContent = posEditingId
-            ? "Salvar Alterações"
-            : "Salvar Cargo";
-    }
+    btn.disabled = false;
+    btn.textContent = posEditingId
+      ? "Salvar Alterações"
+      : "Salvar Cargo";
+  }
 
 
 }
 
 function handleApiError(err, fallbackMsg = "Erro inesperado") {
-    console.error(err);
+  console.error(err);
 
-    const msg =
-        err?.response?.data?.message ||
-        err?.message ||
-        fallbackMsg;
+  const msg =
+    err?.response?.data?.message ||
+    err?.message ||
+    fallbackMsg;
 
-    Toast.error(msg);
+  Toast.error(msg);
 }
 
 /* --------------------------------------------------------
@@ -909,36 +911,36 @@ function handleApiError(err, fallbackMsg = "Erro inesperado") {
 -------------------------------------------------------- */
 async function deletePosition(id, nome) {
 
-    if (!confirm(`Deseja remover o cargo "${nome}"?`))
-        return;
+  if (!confirm(`Deseja remover o cargo "${nome}"?`))
+    return;
 
-    try {
+  try {
 
-        await App.deletePosition(id);
+    await App.deletePosition(id);
 
-        _cargos = _cargos.filter(c => c.id != id);
+    _cargos = _cargos.filter(c => c.id != id);
 
-        Toast.success("Cargo removido!");
+    Toast.success("Cargo removido!");
 
-        updateStats();
+    updateStats();
 
-        renderPositionsList();
+    renderPositionsList();
 
-    } catch (err) {
+  } catch (err) {
 
-        handleApiError(err, "Não foi possível remover o cargo.");
+    handleApiError(err, "Não foi possível remover o cargo.");
 
-    }
+  }
 
 }
 /* --------------------------------------------------------
    ESTILOS
 -------------------------------------------------------- */
 function injectPositionStyles() {
-    if (document.getElementById('pos-styles')) return;
-    const style = document.createElement('style');
-    style.id = 'pos-styles';
-    style.textContent = `
+  if (document.getElementById('pos-styles')) return;
+  const style = document.createElement('style');
+  style.id = 'pos-styles';
+  style.textContent = `
     .pos-level-group { margin-bottom: 28px; }
     .pos-level-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
     .pos-level-badge { display: inline-flex; align-items: center; padding: 4px 14px; border-radius: 99px; font-size: 0.8rem; font-weight: 700; }
@@ -976,5 +978,5 @@ function injectPositionStyles() {
       animation: spin 0.7s linear infinite;
     }
   `;
-    document.head.appendChild(style);
+  document.head.appendChild(style);
 }
