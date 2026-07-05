@@ -1,29 +1,37 @@
 package com.Rh.Sistema.DTOs;
 
-import com.Rh.Sistema.Enums.TipoDeContrato;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public class FuncionarioDTO {
+public class FuncionarioResponseDTO {
+
+    private Long id;
     private String nome;
     private String cpf;
     private Integer idade;
 
     private BigDecimal salario;
-
     private LocalDate dataDeContratacao;
-
     private Boolean statusEmpregado;
 
-    private TipoDeContrato tipoDeContrato;
-
+    private String tipoDeContrato;
     private String observacoes;
 
     private Long cargoId;
+    private String cargoNome;
+
     private Long departamentoId;
+    private String departamentoNome;
+
     private Long empresaId;
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getNome() {
         return nome;
@@ -33,20 +41,20 @@ public class FuncionarioDTO {
         this.nome = nome;
     }
 
-    public String getCpf() {
-        return cpf;
-    }
-
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
-    }
-
     public Integer getIdade() {
         return idade;
     }
 
     public void setIdade(Integer idade) {
         this.idade = idade;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
     }
 
     public BigDecimal getSalario() {
@@ -73,11 +81,11 @@ public class FuncionarioDTO {
         this.statusEmpregado = statusEmpregado;
     }
 
-    public TipoDeContrato getTipoDeContrato() {
+    public String getTipoDeContrato() {
         return tipoDeContrato;
     }
 
-    public void setTipoDeContrato(TipoDeContrato tipoDeContrato) {
+    public void setTipoDeContrato(String tipoDeContrato) {
         this.tipoDeContrato = tipoDeContrato;
     }
 
@@ -97,12 +105,28 @@ public class FuncionarioDTO {
         this.cargoId = cargoId;
     }
 
+    public String getCargoNome() {
+        return cargoNome;
+    }
+
+    public void setCargoNome(String cargoNome) {
+        this.cargoNome = cargoNome;
+    }
+
     public Long getDepartamentoId() {
         return departamentoId;
     }
 
     public void setDepartamentoId(Long departamentoId) {
         this.departamentoId = departamentoId;
+    }
+
+    public String getDepartamentoNome() {
+        return departamentoNome;
+    }
+
+    public void setDepartamentoNome(String departamentoNome) {
+        this.departamentoNome = departamentoNome;
     }
 
     public Long getEmpresaId() {

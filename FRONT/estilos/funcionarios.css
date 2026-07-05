@@ -1,7 +1,7 @@
 /* ==================== EMPLOYEES ==================== */
 
 body{
-    color: blue;
+    color: var(--primary);
 }
 
 
@@ -59,6 +59,17 @@ body{
 }
 .filter-select:focus { border-color: var(--primary); }
 
+.btn-primary {
+  background: var(--primary);
+  border: 1px solid var(--primary-dark);
+  transition: var(--transition);
+}
+
+.btn-primary:hover {
+  background: var(--primary-light);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--primary) 35%, transparent);
+}
+
 /* ==================== VIEW TOGGLE ==================== */
 .view-toggle {
   display: flex;
@@ -94,12 +105,14 @@ body{
   transition: var(--transition);
   position: relative;
   animation: slideUp 0.3s ease both;
+
+  box-shadow: 0 0 0 transparent;
 }
 
 .employee-card:hover {
-  border-color: var(--border-hover);
+  border-color: var(--primary);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--primary) 25%, transparent);
   transform: translateY(-3px);
-  box-shadow: var(--shadow);
 }
 
 .employee-card-top {
@@ -119,9 +132,19 @@ body{
   border-radius: 50%;
   border: 2px solid var(--bg-2);
 }
-.employee-status-dot.ativo { background: var(--success); }
-.employee-status-dot.inativo { background: var(--text-3); }
-.employee-status-dot.afastado { background: var(--accent); }
+.employee-status-dot.ativo {
+  background: var(--success);
+  box-shadow: 0 0 8px var(--success);
+}
+
+.employee-status-dot.inativo {
+  background: var(--text-3);
+}
+
+.employee-status-dot.afastado {
+  background: var(--secondary);
+  box-shadow: 0 0 8px var(--secondary);
+}
 
 .employee-card-actions {
   display: flex;
@@ -202,7 +225,12 @@ body{
 .profile-drawer.open { right: 0; }
 
 .profile-drawer-header {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  background: linear-gradient(
+    135deg,
+    var(--primary),
+    var(--primary-dark)
+  );
+  box-shadow: 0 0 25px color-mix(in srgb, var(--primary) 40%, transparent);
   padding: 28px 24px;
   display: flex;
   align-items: flex-end;

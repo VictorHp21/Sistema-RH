@@ -103,7 +103,7 @@ async function renderDashboard() {
     </div>
 
     <div class="quick-actions stagger">
-      <a href="employees.html" class="quick-action" style="animation-delay:0.05s">
+      <a href="funcionarios.html" class="quick-action" style="animation-delay:0.05s">
         <span class="quick-action-icon">👤</span>
         <div class="quick-action-label">Novo Funcionário</div>
       </a>

@@ -2,6 +2,7 @@ package com.Rh.Sistema.Controllers;
 
 
 import com.Rh.Sistema.DTOs.FuncionarioDTO;
+import com.Rh.Sistema.DTOs.FuncionarioResponseDTO;
 import com.Rh.Sistema.DTOs.TempoEmpresaDTO;
 import com.Rh.Sistema.Entities.Funcionario;
 import com.Rh.Sistema.Services.FuncionarioService;
@@ -28,17 +29,13 @@ public class FuncionarioController {
         return service.cadastrarFuncionario(dto);
     }
 
-    @GetMapping
-    public List<Funcionario> listarFuncionarios(){
-        return service.listarFuncionarios();
-    }
+
 
     @GetMapping("/{id}")
-    public ResponseEntity<Funcionario> buscarFuncionarioPorId(
-            @PathVariable Long id){
+    public ResponseEntity<FuncionarioResponseDTO> buscarFuncionarioPorId(@PathVariable Long id) {
 
         return service.buscarFuncionarioId(id)
-                .map(ResponseEntity::ok)
+                .map(funcionario -> ResponseEntity.ok(service.toDTO(funcionario)))
                 .orElse(ResponseEntity.notFound().build());
     }
 

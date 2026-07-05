@@ -10,12 +10,12 @@ function renderSidebar(activePage) {
       { href: 'dashboard.html', icon: '▦', label: 'Dashboard' },
     ]},
     { section: 'Pessoas', links: [
-      { href: 'employees.html', icon: '👥', label: 'Funcionários' },
+      { href: 'funcionarios.html', icon: '👥', label: 'Funcionários' },
       { href: 'departamentos.html', icon: '🏢', label: 'Departamentos' },
       { href: 'cargos.html', icon: '💼', label: 'Cargos' },
     ]},
     { section: 'Empresa', links: [
-      { href: 'company.html', icon: '🏛', label: 'Minha Empresa' },
+      { href: 'empresa.html', icon: '🏛', label: 'Minha Empresa' },
     ]},
   ];
 

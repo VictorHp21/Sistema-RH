@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "Departamentos")
 public class Departamento {
@@ -17,6 +19,7 @@ public class Departamento {
     private Boolean status;
 
     private String descricao;
+
 
     @ManyToOne
     @JoinColumn(name = "gerente_id")
@@ -94,4 +97,7 @@ public class Departamento {
     public void setEmpresa(Empresa empresa) {
         this.empresa = empresa;
     }
+
+
+
 }

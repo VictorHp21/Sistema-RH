@@ -11,9 +11,12 @@ window.addEventListener('DOMContentLoaded', () => {
   renderPage();
 });
 
-function renderPage() {
-  const employees = App.getEmployees();
-  const departments = App.getDepartments();
+async function renderPage() {
+
+  App.showLoader("Carregando dados dos funcionários...");
+
+  const employees = await App.getEmployees();
+  const departments = await App.getDepartments();
 
   const deptOptions = departments.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
 
@@ -36,17 +39,17 @@ function renderPage() {
       </div>
       <select class="filter-select" id="emp-status" onchange="filterStatus=this.value; renderEmployeeList()">
         <option value="">Todos os status</option>
-        <option value="ativo" ${filterStatus==='ativo'?'selected':''}>Ativo</option>
-        <option value="inativo" ${filterStatus==='inativo'?'selected':''}>Inativo</option>
-        <option value="afastado" ${filterStatus==='afastado'?'selected':''}>Afastado</option>
+        <option value="ativo" ${filterStatus === 'ativo' ? 'selected' : ''}>Ativo</option>
+        <option value="inativo" ${filterStatus === 'inativo' ? 'selected' : ''}>Inativo</option>
+        <option value="afastado" ${filterStatus === 'afastado' ? 'selected' : ''}>Afastado</option>
       </select>
       <select class="filter-select" id="emp-dept" onchange="filterDept=this.value; renderEmployeeList()">
         <option value="">Todos os depts.</option>
         ${deptOptions}
       </select>
       <div class="view-toggle">
-        <button class="view-btn ${currentView==='cards'?'active':''}" onclick="setView('cards')" title="Cards">▦</button>
-        <button class="view-btn ${currentView==='list'?'active':''}" onclick="setView('list')" title="Lista">☰</button>
+        <button class="view-btn ${currentView === 'cards' ? 'active' : ''}" onclick="setView('cards')" title="Cards">▦</button>
+        <button class="view-btn ${currentView === 'list' ? 'active' : ''}" onclick="setView('list')" title="Lista">☰</button>
       </div>
     </div>
 
@@ -174,8 +177,8 @@ function setView(view) {
   renderPage();
 }
 
-function getFilteredEmployees() {
-  let list = App.getEmployees();
+async function getFilteredEmployees() {
+  let list = await App.getEmployees();
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
     list = list.filter(e =>
@@ -189,51 +192,58 @@ function getFilteredEmployees() {
   return list;
 }
 
-function renderEmployeeList() {
+async function renderEmployeeList() {
   const container = document.getElementById('employee-list-container');
   if (!container) return;
-  const employees = getFilteredEmployees();
-  const departments = App.getDepartments();
+
+  const employees = await getFilteredEmployees();
+  const departments = await App.getDepartments();
 
   if (employees.length === 0) {
     container.innerHTML = `
       <div class="empty-state animate-in">
         <div class="empty-state-icon">👤</div>
-        <div class="empty-state-title">${searchQuery || filterStatus || filterDept ? 'Nenhum resultado' : 'Nenhum funcionário'}</div>
-        <div class="empty-state-desc">${searchQuery || filterStatus || filterDept ? 'Tente outros filtros.' : 'Clique em "+ Novo Funcionário" para cadastrar o primeiro.'}</div>
-        ${!searchQuery && !filterStatus && !filterDept ? '<button class="btn btn-primary" onclick="openNewEmployee()">+ Novo Funcionário</button>' : ''}
+        <div class="empty-state-title">
+          ${searchQuery || filterStatus || filterDept ? 'Nenhum resultado' : 'Nenhum funcionário'}
+        </div>
+        <div class="empty-state-desc">
+          ${searchQuery || filterStatus || filterDept ? 'Tente outros filtros.' : 'Clique em "+ Novo Funcionário" para cadastrar o primeiro.'}
+        </div>
       </div>`;
     return;
   }
 
   if (currentView === 'cards') {
-    container.innerHTML = `<div class="employee-cards stagger">
-      ${employees.map((e, i) => {
-        const dept = departments.find(d => d.id === e.departmentId);
-        const initials = App.getInitials(e.name);
-        return `
-          <div class="employee-card" style="animation-delay:${i * 0.04}s">
-            <div class="employee-card-top">
-              <div class="employee-avatar-wrap">
-                <div class="avatar avatar-lg" style="background:${avatarColor(e.name)}">
-                  ${e.photo ? `<img src="${e.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : initials}
+    container.innerHTML = `
+      <div class="employee-cards stagger">
+        ${employees.map((e, i) => {
+      const dept = departments.find(d =>
+        d.id === e.departmentId || d.id === e.departamentoId
+      );
+
+      return `
+            <div class="employee-card" style="animation-delay:${i * 0.04}s">
+              <div class="employee-card-top">
+                <div class="employee-avatar-wrap">
+                  <div class="avatar avatar-lg" style="background:${avatarColor(e.name)}">
+                    ${e.photo ? `<img src="${e.photo}" />` : App.getInitials(e.name)}
+                  </div>
                 </div>
-                <div class="employee-status-dot ${e.status || 'ativo'}"></div>
+                <div class="employee-card-actions">
+                  <button onclick="editEmployee('${e.id}')">✏</button>
+                  <button onclick="deleteEmployee('${e.id}')">🗑</button>
+                </div>
               </div>
-              <div class="employee-card-actions">
-                <button class="btn btn-ghost btn-sm btn-icon" onclick="editEmployee('${e.id}')" title="Editar">✏</button>
-                <button class="btn btn-ghost btn-sm btn-icon" onclick="deleteEmployee('${e.id}')" title="Remover" style="color:var(--danger)">🗑</button>
+
+              <div class="employee-name">${e.name}</div>
+              <div class="employee-position">${e.cargoNome || '—'}</div>
+
+              <div class="employee-card-footer">
+                <span>🏢 ${e.departamentoNome || 'Sem departamento'}</span>
               </div>
-            </div>
-            <div class="employee-name" onclick="openProfile('${e.id}')" style="cursor:pointer">${e.name}</div>
-            <div class="employee-position">${e.position || '—'}</div>
-            <div class="employee-card-footer">
-              <span class="employee-dept">🏢 ${dept?.name || 'Sem depto.'}</span>
-              <span class="badge badge-${statusBadge(e.status)}">${e.status || 'ativo'}</span>
-            </div>
-          </div>`;
-      }).join('')}
-    </div>`;
+            </div>`;
+    }).join('')}
+      </div>`;
   } else {
     container.innerHTML = `
       <div class="list-view active animate-in">
@@ -252,8 +262,10 @@ function renderEmployeeList() {
             </thead>
             <tbody>
               ${employees.map(e => {
-                const dept = departments.find(d => d.id === e.departmentId);
-                return `<tr>
+      const dept = departments.find(d =>
+        d.id === e.departmentId || d.id === e.departamentoId
+      )
+      return `<tr>
                   <td>
                     <div style="display:flex;align-items:center;gap:10px">
                       <div class="avatar avatar-sm" style="background:${avatarColor(e.name)}">
@@ -266,7 +278,7 @@ function renderEmployeeList() {
                     </div>
                   </td>
                   <td>${e.position || '—'}</td>
-                  <td>${dept?.name || '—'}</td>
+                  <td>${e.departamento?.nome || '—'}</td>
                   <td>${e.contract || 'CLT'}</td>
                   <td>${App.formatDate(e.admission)}</td>
                   <td><span class="badge badge-${statusBadge(e.status)}">${e.status || 'ativo'}</span></td>
@@ -277,7 +289,7 @@ function renderEmployeeList() {
                     </div>
                   </td>
                 </tr>`;
-              }).join('')}
+    }).join('')}
             </tbody>
           </table>
         </div>
@@ -312,7 +324,7 @@ function openNewEmployee() {
 }
 
 function resetForm() {
-  ['emp-name','emp-email','emp-phone','emp-cpf','emp-position','emp-salary','emp-notes'].forEach(id => {
+  ['emp-name', 'emp-email', 'emp-phone', 'emp-cpf', 'emp-position', 'emp-salary', 'emp-notes'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -372,9 +384,9 @@ function saveEmployee() {
     status: document.getElementById('emp-status-select')?.value || 'ativo',
     contract: document.getElementById('emp-contract')?.value || 'CLT',
     notes: document.getElementById('emp-notes')?.value.trim(),
-    photo: photoDataUrl || (editingId ? data.employees.find(e=>e.id===editingId)?.photo : null),
+    photo: photoDataUrl || (editingId ? data.employees.find(e => e.id === editingId)?.photo : null),
     companyId: App.session.companyId,
-    createdAt: editingId ? (data.employees.find(e=>e.id===editingId)?.createdAt || new Date().toISOString()) : new Date().toISOString(),
+    createdAt: editingId ? (data.employees.find(e => e.id === editingId)?.createdAt || new Date().toISOString()) : new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
 
@@ -398,10 +410,10 @@ function saveEmployee() {
   }
 }
 
-function editEmployee(id) {
+async function editEmployee(id) {
   editingId = id;
   photoDataUrl = null;
-  const employees = App.getEmployees();
+  const employees = await App.getEmployees();
   const e = employees.find(emp => emp.id === id);
   if (!e) return;
 
@@ -450,7 +462,9 @@ function openProfile(id) {
   const departments = App.getDepartments();
   const e = employees.find(emp => emp.id === id);
   if (!e) return;
-  const dept = departments.find(d => d.id === e.departmentId);
+  const dept = departments.find(d =>
+    d.id === e.departmentId || d.id === e.departamentoId
+  );
 
   const drawer = document.getElementById('profile-drawer');
   const content = document.getElementById('profile-drawer-content');

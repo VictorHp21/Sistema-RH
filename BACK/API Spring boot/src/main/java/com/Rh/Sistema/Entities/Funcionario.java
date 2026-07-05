@@ -1,7 +1,9 @@
 package com.Rh.Sistema.Entities;
 
+import com.Rh.Sistema.Enums.TipoDeContrato;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -18,13 +20,18 @@ public class Funcionario {
     private Integer idade;
     private String cpf;
 
+    @Enumerated(EnumType.STRING)
+    private TipoDeContrato tipoDeContrato;
+
+    private String observacoes;
+
     @ManyToOne
     @JoinColumn(name = "cargo_id")
     private Cargo cargo;
 
     @ManyToOne
     @JoinColumn(name = "departamento_id")
-    @JsonBackReference
+    @JsonIgnore
     private Departamento departamento;
 
 
@@ -87,6 +94,22 @@ public class Funcionario {
 
     public void setCpf(String cpf) {
         this.cpf = cpf;
+    }
+
+    public TipoDeContrato getTipoDeContrato() {
+        return tipoDeContrato;
+    }
+
+    public void setTipoDeContrato(TipoDeContrato tipoDeContrato) {
+        this.tipoDeContrato = tipoDeContrato;
+    }
+
+    public String getObservacoes() {
+        return observacoes;
+    }
+
+    public void setObservacoes(String observacoes) {
+        this.observacoes = observacoes;
     }
 
     public Cargo getCargo() {

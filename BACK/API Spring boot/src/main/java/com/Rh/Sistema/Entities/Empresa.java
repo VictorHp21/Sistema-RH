@@ -18,6 +18,19 @@ public class Empresa {
 
     private Boolean status;
 
+    private String email;
+    private String telefone;
+    private String endereco;
+    private String site;
+    private String segmento;
+
+    // paleta de cores
+
+    private String corPrincipal;
+    private String corPrincipalClara;
+    private String corPrincipalEscura;
+    private String corSecundaria;
+
     // para imagem logo irei amazenar por url, preciso de um site para armazenar as imagens e aceite que a api ou o front receba esta imagem e salve neste site ao mesmo tempo que ira retornar a url em que a imagem foi salva, salvando esta url no bd para consulta e exibição no front
 
     private String logoUrl;
@@ -78,6 +91,78 @@ public class Empresa {
 
     public void setStatus(Boolean status) {
         this.status = status;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getTelefone() {
+        return telefone;
+    }
+
+    public void setTelefone(String telefone) {
+        this.telefone = telefone;
+    }
+
+    public String getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(String endereco) {
+        this.endereco = endereco;
+    }
+
+    public String getSite() {
+        return site;
+    }
+
+    public void setSite(String site) {
+        this.site = site;
+    }
+
+    public String getSegmento() {
+        return segmento;
+    }
+
+    public void setSegmento(String segmento) {
+        this.segmento = segmento;
+    }
+
+    public String getCorPrincipal() {
+        return corPrincipal;
+    }
+
+    public void setCorPrincipal(String corPrincipal) {
+        this.corPrincipal = corPrincipal;
+    }
+
+    public String getCorPrincipalClara() {
+        return corPrincipalClara;
+    }
+
+    public void setCorPrincipalClara(String corPrincipalClara) {
+        this.corPrincipalClara = corPrincipalClara;
+    }
+
+    public String getCorPrincipalEscura() {
+        return corPrincipalEscura;
+    }
+
+    public void setCorPrincipalEscura(String corPrincipalEscura) {
+        this.corPrincipalEscura = corPrincipalEscura;
+    }
+
+    public String getCorSecundaria() {
+        return corSecundaria;
+    }
+
+    public void setCorSecundaria(String corSecundaria) {
+        this.corSecundaria = corSecundaria;
     }
 
     public List<Funcionario> getFuncionarios() {

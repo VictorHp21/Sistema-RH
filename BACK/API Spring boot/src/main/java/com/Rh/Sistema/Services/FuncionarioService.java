@@ -3,6 +3,7 @@ package com.Rh.Sistema.Services;
 
 import com.Rh.Sistema.Configuration.TesteConexaoBD;
 import com.Rh.Sistema.DTOs.FuncionarioDTO;
+import com.Rh.Sistema.DTOs.FuncionarioResponseDTO;
 import com.Rh.Sistema.DTOs.TempoEmpresaDTO;
 import com.Rh.Sistema.Entities.*;
 import com.Rh.Sistema.Repositories.*;
@@ -34,11 +35,63 @@ public class FuncionarioService {
         this.empresaRepository = empresaRepository;
     }
 
+    // mapper
+
+    public FuncionarioResponseDTO toDTO(Funcionario f) {
+
+        FuncionarioResponseDTO dto = new FuncionarioResponseDTO();
+
+        dto.setId(f.getId());
+        dto.setNome(f.getNome());
+        dto.setCpf(f.getCpf());
+        dto.setIdade(f.getIdade());
+        dto.setSalario(f.getSalario());
+        dto.setDataDeContratacao(f.getDataDeContratacao());
+        dto.setStatusEmpregado(f.getStatusEmpregado());
+
+        dto.setTipoDeContrato(
+                f.getTipoDeContrato() != null ? f.getTipoDeContrato().name() : null
+        );
+
+        dto.setObservacoes(f.getObservacoes());
+
+
+        if (f.getCargo() != null) {
+            dto.setCargoId(f.getCargo().getId());
+            dto.setCargoNome(f.getCargo().getNome());
+        }
+
+
+        if (f.getDepartamento() != null) {
+            dto.setDepartamentoId(f.getDepartamento().getId());
+            dto.setDepartamentoNome(f.getDepartamento().getNome());
+        }
+
+        if (f.getEmpresa() != null) {
+            dto.setEmpresaId(f.getEmpresa().getId());
+        }
+
+        return dto;
+    }
+
+
     // Métodos CRUD
 
-    public List<Funcionario> listarFuncionarios() {
-        return funcionarioRepository.findAll();
+
+    public List<FuncionarioResponseDTO> listarFuncionarios() {
+        return funcionarioRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .toList();
     }
+
+    public List<FuncionarioResponseDTO> listarPorEmpresa(Long empresaId) {
+        return funcionarioRepository.findByEmpresaId(empresaId)
+                .stream()
+                .map(this::toDTO)
+                .toList();
+    }
+
 
     public Optional<Funcionario> buscarFuncionarioId(Long id) {
         return funcionarioRepository.findById(id);
@@ -105,6 +158,10 @@ public class FuncionarioService {
         funcionario.setSalario(dto.getSalario());
         funcionario.setDataDeContratacao(dto.getDataDeContratacao());
         funcionario.setStatusEmpregado(dto.getStatusEmpregado());
+
+        funcionario.setTipoDeContrato(dto.getTipoDeContrato());
+
+        funcionario.setObservacoes(dto.getObservacoes());
 
         funcionario.setCargo(cargo);
         funcionario.setDepartamento(departamento);

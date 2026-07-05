@@ -1,11 +1,10 @@
 package com.Rh.Sistema.Services;
 
 import com.Rh.Sistema.DTOs.EmpresaPreviewDTO;
+import com.Rh.Sistema.DTOs.EmpresaResumoDTO;
 import com.Rh.Sistema.DTOs.RelatorioFolhaSalarioDTO;
 import com.Rh.Sistema.Entities.*;
-import com.Rh.Sistema.Repositories.CargoRepository;
-import com.Rh.Sistema.Repositories.EmpresaRepository;
-import com.Rh.Sistema.Repositories.UserRHRepository;
+import com.Rh.Sistema.Repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,12 +29,23 @@ public class EmpresaService {
     @Autowired
     private final CargoRepository cargoRepository;
 
+    @Autowired
+    private final FuncionarioRepository funcionarioRepository;
+
+    @Autowired
+    private final DepartamentoRepository departamentoRepository;
+
+
+
     public EmpresaService(EmpresaRepository repository, UserRHRepository userRHRepository,
-                          ImageUploadService imageUploadService, CargoRepository cargoRepository){
+                          ImageUploadService imageUploadService, CargoRepository cargoRepository,
+                          FuncionarioRepository funcionarioRepository, DepartamentoRepository departamentoRepository){
         this.repository = repository;
         this.userRHRepository = userRHRepository;
         this.imageUploadService = imageUploadService;
         this.cargoRepository = cargoRepository;
+        this.funcionarioRepository = funcionarioRepository;
+        this.departamentoRepository = departamentoRepository;
     }
 
     // métodos de CRUD:
@@ -112,10 +122,77 @@ public class EmpresaService {
         Empresa empresaExiste = repository.findById(id)
                 .orElseThrow(()-> new RuntimeException("Empresa não encontrada"));
 
-        empresaExiste.setNome(empresa.getNome());
-        empresaExiste.setCnpj(empresa.getCnpj());
+
+
+        // para quando atualizar a paleta n apagar outros dados da empresa
+
+        if (empresa.getNome() != null)
+            empresaExiste.setNome(empresa.getNome());
+
+        if (empresa.getCnpj() != null)
+            empresaExiste.setCnpj(empresa.getCnpj());
+
+        if (empresa.getEndereco() != null)
+            empresaExiste.setEndereco(empresa.getEndereco());
+
+        if (empresa.getTelefone() != null)
+            empresaExiste.setTelefone(empresa.getTelefone());
+
+        if (empresa.getEmail() != null)
+            empresaExiste.setEmail(empresa.getEmail());
+
+        if (empresa.getSite() != null)
+            empresaExiste.setSite(empresa.getSite());
+
+        if (empresa.getSegmento() != null)
+            empresaExiste.setSegmento(empresa.getSegmento());
+
+        if (empresa.getCorPrincipal() != null)
+            empresaExiste.setCorPrincipal(empresa.getCorPrincipal());
+
+        if (empresa.getCorPrincipalClara() != null)
+            empresaExiste.setCorPrincipalClara(empresa.getCorPrincipalClara());
+
+        if (empresa.getCorPrincipalEscura() != null)
+            empresaExiste.setCorPrincipalEscura(empresa.getCorPrincipalEscura());
+
+        if (empresa.getCorSecundaria() != null)
+            empresaExiste.setCorSecundaria(empresa.getCorSecundaria());
 
         return repository.save(empresaExiste);
+    }
+
+    public EmpresaResumoDTO buscarResumo(Long empresaId) {
+
+        Empresa empresa = repository.findById(empresaId)
+                .orElseThrow();
+
+        EmpresaResumoDTO dto = new EmpresaResumoDTO();
+
+        dto.setNome(empresa.getNome());
+        dto.setCnpj(empresa.getCnpj());
+        dto.setEndereco(empresa.getEndereco());
+        dto.setTelefone(empresa.getTelefone());
+        dto.setEmail(empresa.getEmail());
+        dto.setSite(empresa.getSite());
+        dto.setSegmento(empresa.getSegmento());
+
+        // cores
+        dto.setCorPrincipal(empresa.getCorPrincipal());
+        dto.setCorPrincipalClara(empresa.getCorPrincipalClara());
+        dto.setCorSecundaria(empresa.getCorSecundaria());
+        dto.setCorPrincipalEscura(empresa.getCorPrincipalEscura());
+
+        dto.setQuantidadeFuncionarios(
+                funcionarioRepository.countByEmpresaId(empresaId));
+
+        dto.setQuantidadeCargos(
+                cargoRepository.countByEmpresaId(empresaId));
+
+        dto.setQuantidadeDepartamentos(
+                departamentoRepository.countByEmpresaId(empresaId));
+
+        return dto;
     }
 
 

@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface CargoRepository extends JpaRepository<Cargo, Long> {
     List<Cargo> findByEmpresaIdAndExcluidoFalse(Long empresaId);
+
+    long countByEmpresaId(Long empresaId);
 }

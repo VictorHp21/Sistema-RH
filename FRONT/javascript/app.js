@@ -67,6 +67,18 @@ const App = {
     window.location.href = '/paginas/index.html';
   },
 
+  async getCompanySummary() {
+
+    const res = await fetch(
+      `http://localhost:8080/empresa/${this.session.companyId}/resumo`
+    );
+
+    if (!res.ok)
+      throw new Error("Erro ao carregar empresa");
+
+    return await res.json();
+  },
+
   // Company palette & logo (stored per company inside companies array)
   getCompanyTheme() {
     const data = this.getData();
@@ -82,39 +94,42 @@ const App = {
   },
 
   applyCompanyTheme() {
-    const { palette, logo } = this.getCompanyTheme();
+    const company = this.session.company;
 
-    // Aplica as cores somente se a empresa possuir uma paleta
-    if (palette) {
-      document.documentElement.style.setProperty('--primary', palette.primary);
-      document.documentElement.style.setProperty('--primary-light', palette.primaryLight);
-      document.documentElement.style.setProperty('--primary-dark', palette.primaryDark);
-      document.documentElement.style.setProperty('--secondary', palette.secondary);
-      document.documentElement.style.setProperty('--shadow-glow', `0 0 40px ${palette.primary}40`);
+    if (!company) return;
+
+    // Aplica as cores da empresa
+    if (company.corPrincipal) {
+      document.documentElement.style.setProperty('--primary', company.corPrincipal);
+      document.documentElement.style.setProperty('--primary-light', company.corPrincipalClara);
+      document.documentElement.style.setProperty('--primary-dark', company.corPrincipalEscura);
+      document.documentElement.style.setProperty('--secondary', company.corSecundaria);
+      document.documentElement.style.setProperty(
+        '--shadow-glow',
+        `0 0 40px ${company.corPrincipal}40`
+      );
     }
 
     // Atualiza nome da empresa
-    const logoName = document.querySelectorAll('.company-name-text');
-    const companyName = this.session.company?.nome || 'RH System';
+    const companyName = company.nome || 'RH System';
 
-    logoName.forEach(el => {
+    document.querySelectorAll('.company-name-text').forEach(el => {
       el.textContent = companyName;
     });
 
-    // Atualiza logo
-    const logoEls = document.querySelectorAll('.company-logo-img');
 
-    if (logo) {
-      logoEls.forEach(el => {
+    // Atualiza logo
+    const logo = company.logo;
+
+    document.querySelectorAll('.company-logo-img').forEach(el => {
+      if (logo) {
         el.src = logo;
         el.style.display = 'block';
 
         const initials = el.closest('.logo-wrap')?.querySelector('.logo-initials');
-        if (initials) {
-          initials.style.display = 'none';
-        }
-      });
-    }
+        if (initials) initials.style.display = 'none';
+      }
+    });
   },
 
   // Guard - redirect to login if no session
@@ -133,9 +148,16 @@ const App = {
   },
 
   getInitials(name) {
-    return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
-  },
+    if (!name || typeof name !== 'string') return "??";
 
+    return name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map(w => w[0])
+      .join('')
+      .toUpperCase();
+  },
   formatDate(dateStr) {
     if (!dateStr) return '—';
     return new Date(dateStr).toLocaleDateString('pt-BR');
@@ -145,10 +167,77 @@ const App = {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
   },
 
-  // Get employees for current company
+  // empresa
+
+  async updateCompany(id, payload) {
+    const res = await fetch(`http://localhost:8080/empresa/${this.session.companyId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      throw new Error("Erro ao atualizar empresa");
+    }
+
+    return await res.json();
+  },
+
+
+  // funcionarios e departamentos
+
+  getFilteredEmployees: async function () {
+    let list = await this.getEmployees();
+
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(e =>
+        e.name?.toLowerCase().includes(q) ||
+        e.position?.toLowerCase().includes(q) ||
+        e.email?.toLowerCase().includes(q)
+      );
+    }
+
+    if (filterStatus) list = list.filter(e => e.status === filterStatus);
+    if (filterDept) list = list.filter(e => e.departmentId === filterDept);
+
+    return list;
+  },
+
+  normalizeEmployee(e) {
+    return {
+      id: e.id,
+      nome: e.nome || e.name,
+      cargo: e.cargo || e.position,
+      departmentId: e.departmentId || e.departamentoId
+    };
+  },
+
   async getEmployees() {
     const res = await fetch(`http://localhost:8080/empresa/${this.session.companyId}/funcionarios`);
-    return await res.json();
+    const data = await res.json();
+
+    const list = Array.isArray(data)
+      ? data
+      : (data.funcionarios || data.data || data.content || []);
+
+    return list.map(e => ({
+      id: e.id,
+      name: e.nome,
+      email: e.email || '',
+      phone: e.telefone || '',
+      cpf: e.cpf || '',
+
+
+      cargoNome: e.cargoNome || '—',
+      departamentoNome: e.departamentoNome || '—',
+
+      admission: e.dataDeContratacao,
+      salary: e.salario,
+      status: e.statusEmpregado ? 'ativo' : 'inativo',
+    }));
   },
 
   async getDepartments() {
@@ -207,7 +296,7 @@ const App = {
 
   // funções para departamentos
 
-  
+
   async createDepartament(payload) {
     const res = await fetch(`http://localhost:8080/departamentos/${this.session.companyId}`, {
       method: "POST",
@@ -329,9 +418,13 @@ const PalettePicker = {
   render() {
     const container = document.getElementById('palette-picker-panel');
     if (!container) return;
-    const data = App.getData();
-    const company = data.companies.find(c => c.id === App.session.companyId);
-    const current = company?.palette;
+    const company = App.session.company;
+    const current = {
+      primary: company?.corPrincipal,
+      primaryLight: company?.corPrincipalClara,
+      primaryDark: company?.corPrincipalEscura,
+      secondary: company?.corSecundaria
+    };
 
     container.innerHTML = `
       <div class="palette-header">
@@ -371,11 +464,16 @@ const PalettePicker = {
     `;
   },
 
-  apply(index) {
+  async apply(index) {
+
     const p = this.defaultPresets[index];
-    this.savePalette(p);
+
+    await this.savePalette(p);
+
     this.applyToDOM(p);
-    Toast.success('Paleta aplicada!', p.name);
+
+    Toast.success("Paleta aplicada!", p.name);
+
     this.render();
   },
 
@@ -384,27 +482,59 @@ const PalettePicker = {
     this.applyToDOM(p);
   },
 
-  applyCustom() {
+  async applyCustom() {
+
     const p = this.getCustomValues();
-    this.savePalette(p);
-    Toast.success('Cores personalizadas salvas!');
+
+    await this.savePalette(p);
+
+    this.applyToDOM(p);
+
+    Toast.success("Cores personalizadas salvas!");
+
     this.render();
   },
 
   getCustomValues() {
     return {
-      primary: document.getElementById('cp-primary')?.value || '#4F46E5',
-      primaryLight: document.getElementById('cp-light')?.value || '#818CF8',
-      primaryDark: document.getElementById('cp-dark')?.value || '#3730A3',
-      secondary: document.getElementById('cp-secondary')?.value || '#0EA5E9',
+      corPrincipal:
+        document.getElementById("cp-primary")?.value ??
+        App.session.company?.corPrincipal,
+
+      corPrincipalClara:
+        document.getElementById("cp-light")?.value ??
+        App.session.company?.corPrincipalClara,
+
+      corPrincipalEscura:
+        document.getElementById("cp-dark")?.value ??
+        App.session.company?.corPrincipalEscura,
+
+      corSecundaria:
+        document.getElementById("cp-secondary")?.value ??
+        App.session.company?.corSecundaria
     };
   },
 
-  savePalette(palette) {
-    const data = App.getData();
-    const idx = data.companies.findIndex(c => c.id === App.session.companyId);
-    if (idx > -1) { data.companies[idx].palette = palette; App.saveData(data); }
-    if (App.session.company) App.session.company.palette = palette;
+  async savePalette(palette) {
+
+    const payload = {
+      corPrincipal: palette.corPrincipal,
+      corPrincipalClara: palette.corPrincipalClara,
+      corPrincipalEscura: palette.corPrincipalEscura,
+      corSecundaria: palette.corSecundaria
+    };
+
+    const empresa = await App.updateCompany(
+      App.session.companyId,
+      payload
+    );
+
+    App.session.company = empresa;
+    App.saveSession();
+
+    App.applyCompanyTheme();
+    renderPaletteDots();
+    window.location.reload();
   },
 
   applyToDOM(p) {
@@ -415,11 +545,16 @@ const PalettePicker = {
     document.documentElement.style.setProperty('--shadow-glow', `0 0 40px ${p.primary}40`);
   },
 
-  reset() {
+  async reset() {
+
     const p = this.defaultPresets[0];
-    this.savePalette(p);
+
+    await this.savePalette(p);
+
     this.applyToDOM(p);
-    Toast.info('Paleta restaurada para o padrão.');
+
+    Toast.info("Paleta restaurada.");
+
     this.render();
   },
 }

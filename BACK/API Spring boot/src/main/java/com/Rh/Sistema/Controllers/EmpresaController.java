@@ -1,9 +1,12 @@
 package com.Rh.Sistema.Controllers;
 
 import com.Rh.Sistema.DTOs.EmpresaPreviewDTO;
+import com.Rh.Sistema.DTOs.EmpresaResumoDTO;
+import com.Rh.Sistema.DTOs.FuncionarioResponseDTO;
 import com.Rh.Sistema.DTOs.RelatorioFolhaSalarioDTO;
 import com.Rh.Sistema.Entities.*;
 import com.Rh.Sistema.Services.EmpresaService;
+import com.Rh.Sistema.Services.FuncionarioService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +22,11 @@ public class EmpresaController {
 
     private final EmpresaService service;
 
-    public EmpresaController (EmpresaService service){
+    private final FuncionarioService funcionarioService;
+
+    public EmpresaController (EmpresaService service, FuncionarioService funcionarioService){
         this.service = service;
+        this.funcionarioService = funcionarioService;
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -46,8 +52,8 @@ public class EmpresaController {
 
 
     @GetMapping("/{id}/funcionarios")
-    public List<Funcionario> listarFuncionarios(@PathVariable Long id){
-        return service.listarFuncionarios(id);
+    public List<FuncionarioResponseDTO> listarFuncionarios(@PathVariable Long id) {
+        return funcionarioService.listarPorEmpresa(id);
     }
 
     @GetMapping("/{id}/departamentos")
@@ -82,6 +88,11 @@ public class EmpresaController {
         return ResponseEntity.ok(
                 service.editarEmpresa(id, empresa)
         );
+    }
+
+    @GetMapping("/{id}/resumo")
+    public ResponseEntity<EmpresaResumoDTO> resumo(@PathVariable Long id) {
+        return ResponseEntity.ok(service.buscarResumo(id));
     }
 
     // falta testar

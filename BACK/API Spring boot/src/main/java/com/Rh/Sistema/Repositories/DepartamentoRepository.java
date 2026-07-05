@@ -9,4 +9,7 @@ import java.util.List;
 public interface DepartamentoRepository extends JpaRepository<Departamento, Long> {
 
     List<Departamento> findByEmpresaIdAndStatusTrue(Long empresaId);
+
+    long countByEmpresaId(Long empresaId);
+
 }

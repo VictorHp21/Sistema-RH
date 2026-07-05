@@ -1,4 +1,4 @@
-cat > /home/claude/rh-system/js/company.js << 'ENDOFFILE'
+
 /* ==================== COMPANY PAGE ==================== */
 let newLogoDataUrl = null;
 
@@ -15,9 +15,10 @@ window.addEventListener('DOMContentLoaded', async () => {
    CARREGAMENTO
 -------------------------------------------------------- */
 async function carregarEmpresa() {
-  showLoading(true);
+
+  App.showLoader("Carregando dados da empresa...");
   try {
-    _empresa = await Api.empresas.buscar(App.session.companyId);
+    _empresa = await App.getCompanySummary(App.session.companyId);
     // Atualiza sessão com dados frescos
     App.session.company = _empresa;
     App.saveSession();
@@ -25,28 +26,11 @@ async function carregarEmpresa() {
     handleApiError(err, 'Não foi possível carregar os dados da empresa.');
     _empresa = App.session.company; // fallback para dados da sessão
   } finally {
-    showLoading(false);
+    App.hideLoader();
   }
 }
 
-async function carregarEstatisticas() {
-  const id = App.session.companyId;
-  try {
-    const [funcs, depts, cargos] = await Promise.all([
-      Api.funcionarios.listarPorEmpresa(id),
-      Api.departamentos.listarPorEmpresa(id),
-      Api.cargos.listarPorEmpresa(id),
-    ]);
-    return {
-      totalFuncionarios: funcs?.length  || 0,
-      totalDepts:        depts?.length  || 0,
-      totalCargos:       cargos?.length || 0,
-      ativos:            (funcs || []).filter(f => (f.status || 'ATIVO') === 'ATIVO').length,
-    };
-  } catch {
-    return { totalFuncionarios: 0, totalDepts: 0, totalCargos: 0, ativos: 0 };
-  }
-}
+
 
 function showLoading(on) {
   let el = document.getElementById('page-loading');
@@ -67,10 +51,16 @@ function showLoading(on) {
    RENDER
 -------------------------------------------------------- */
 async function renderCompanyPage() {
+
+  await carregarEmpresa();
+
   const co = _empresa || App.session.company || {};
   const nome = co.nome || co.name || 'Empresa';
-  const stats = await carregarEstatisticas();
   const initials = App.getInitials(nome);
+
+
+
+
 
   const content = `
     <div class="page-header animate-in">
@@ -96,8 +86,8 @@ async function renderCompanyPage() {
           <div style="display:flex;align-items:center;gap:20px;margin-bottom:24px;padding:18px;background:var(--bg-3);border-radius:var(--radius)">
             <div class="co-logo-big" id="co-logo-display">
               ${co.logo || co.logoUrl
-                ? `<img src="${co.logo || co.logoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:16px" />`
-                : `<span style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:white">${initials}</span>`}
+      ? `<img src="${co.logo || co.logoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:16px" />`
+      : `<span style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:white">${initials}</span>`}
             </div>
             <div>
               <div style="font-weight:700;font-size:1rem;margin-bottom:2px">${nome}</div>
@@ -109,7 +99,7 @@ async function renderCompanyPage() {
               </button>
               <input type="file" id="co-logo-input" accept="image/*" style="display:none" onchange="handleNewLogo(event)" />
               ${(co.logo || co.logoUrl || newLogoDataUrl)
-                ? `<button class="btn btn-ghost btn-sm" style="margin-left:6px;color:var(--danger)"
+      ? `<button class="btn btn-ghost btn-sm" style="margin-left:6px;color:var(--danger)"
                     onclick="removeLogo()">✕ Remover logo</button>` : ''}
             </div>
           </div>
@@ -186,11 +176,11 @@ async function renderCompanyPage() {
             <button class="btn btn-ghost btn-sm" onclick="recarregarStats()">↺ Atualizar</button>
           </div>
           <div id="co-stats-list">
-            ${coInfoRow('👥 Funcionários', stats.totalFuncionarios)}
-            ${coInfoRow('✓ Ativos',        stats.ativos)}
-            ${coInfoRow('🏢 Departamentos', stats.totalDepts)}
-            ${coInfoRow('💼 Cargos',        stats.totalCargos)}
-            ${coInfoRow('📅 Criada em',     App.formatDate(co.criadoEm || co.createdAt))}
+           ${coInfoRow('👥 Funcionários', co.quantidadeFuncionarios)}
+            ${coInfoRow('🏢 Departamentos', co.quantidadeDepartamentos)}
+            ${coInfoRow('💼 Cargos', co.quantidadeCargos)}
+            ${coInfoRow('📄 CNPJ', co.cnpj)}
+            ${coInfoRow('📍 Endereço', co.endereco)}
           </div>
         </div>
 
@@ -221,7 +211,7 @@ async function renderCompanyPage() {
           </div>
           <div style="display:flex;gap:8px;margin-bottom:12px" id="co-palette-dots"></div>
           <p class="text-sm text-muted">
-            A paleta é salva localmente por empresa e aparece apenas na sessão ativa desta empresa.
+            Escolha as cores da identidade visual da empresa. As alterações são salvas no banco de dados e aplicadas para todos os usuários da empresa.
           </p>
         </div>
 
@@ -254,8 +244,8 @@ function handleNewLogo(event) {
 function removeLogo() {
   if (!confirm('Remover a logo da empresa?')) return;
   newLogoDataUrl = '';           // string vazia = sinaliza remoção
-  const display  = document.getElementById('co-logo-display');
-  const nome     = _empresa?.nome || _empresa?.name || 'E';
+  const display = document.getElementById('co-logo-display');
+  const nome = _empresa?.nome || _empresa?.name || 'E';
   if (display) display.innerHTML = `<span style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:white">${App.getInitials(nome)}</span>`;
   Toast.info('Logo removida', 'Clique em "Salvar" para confirmar.');
 }
@@ -271,20 +261,27 @@ async function saveCompanyInfo() {
   btn.disabled = true;
   btn.textContent = 'Salvando...';
 
+  const palette = PalettePicker.getCustomValues();
+
   const payload = {
     nome,
-    cnpj:      document.getElementById('co-edit-cnpj')?.value.trim()    || null,
-    segmento:  document.getElementById('co-edit-segment')?.value.trim()  || null,
-    telefone:  document.getElementById('co-edit-phone')?.value.trim()    || null,
-    email:     document.getElementById('co-edit-email')?.value.trim()    || null,
-    endereco:  document.getElementById('co-edit-address')?.value.trim()  || null,
-    site:      document.getElementById('co-edit-website')?.value.trim()  || null,
+    cnpj: document.getElementById('co-edit-cnpj')?.value.trim() || null,
+    segmento: document.getElementById('co-edit-segment')?.value.trim() || null,
+    telefone: document.getElementById('co-edit-phone')?.value.trim() || null,
+    email: document.getElementById('co-edit-email')?.value.trim() || null,
+    endereco: document.getElementById('co-edit-address')?.value.trim() || null,
+    site: document.getElementById('co-edit-website')?.value.trim() || null,
     // Logo: null = não alterar | '' = remover | 'data:...' = trocar
     ...(newLogoDataUrl !== null ? { logo: newLogoDataUrl || null } : {}),
+
+
+    // paleta
+    ...palette
+
   };
 
   try {
-    const atualizada = await Api.empresas.atualizar(App.session.companyId, payload);
+    const atualizada = await App.updateCompany(App.session.companyId, payload);
     _empresa = atualizada;
     App.session.company = atualizada;
     App.saveSession();
@@ -306,15 +303,34 @@ async function saveCompanyInfo() {
 -------------------------------------------------------- */
 async function recarregarStats() {
   const list = document.getElementById('co-stats-list');
-  if (list) list.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-3)"><div class="co-spinner" style="margin:0 auto 8px"></div>Atualizando...</div>`;
-  const stats = await carregarEstatisticas();
-  const co    = _empresa || {};
-  if (list) list.innerHTML =
-    coInfoRow('👥 Funcionários', stats.totalFuncionarios) +
-    coInfoRow('✓ Ativos',        stats.ativos)            +
-    coInfoRow('🏢 Departamentos', stats.totalDepts)        +
-    coInfoRow('💼 Cargos',        stats.totalCargos)       +
-    coInfoRow('📅 Criada em',     App.formatDate(co.criadoEm || co.createdAt));
+
+  if (list) {
+    list.innerHTML = `
+            <div style="text-align:center;padding:20px;color:var(--text-3)">
+                <div class="co-spinner" style="margin:0 auto 8px"></div>
+                Atualizando...
+            </div>`;
+  }
+
+
+  await carregarEmpresa();
+
+  const co = _empresa || {};
+
+  const stats = {
+    totalFuncionarios: co.quantidadeFuncionarios,
+    totalCargos: co.quantidadeCargos,
+    totalDepts: co.quantidadeDepartamentos
+  };
+
+  if (list) {
+    list.innerHTML =
+      coInfoRow('👥 Funcionários', stats.totalFuncionarios) +
+      coInfoRow('🏢 Departamentos', stats.totalDepts) +
+      coInfoRow('💼 Cargos', stats.totalCargos) +
+      coInfoRow('📄 CNPJ', co.cnpj) +
+      coInfoRow('📍 Endereço', co.endereco);
+  }
 }
 
 /* --------------------------------------------------------
@@ -332,7 +348,7 @@ async function confirmClearData() {
   try {
     // Endpoint sugerido: DELETE /empresas/{id}/dados
     // Ajuste para o que seu backend expõe
-    await Api.delete(`/empresas/${App.session.companyId}/dados`);
+    await App.delete(`/empresas/${App.session.companyId}/dados`);
     Toast.warning('Dados removidos', 'Todos os registros foram apagados do servidor.');
     await recarregarStats();
   } catch (err) {
@@ -354,22 +370,29 @@ function coInfoRow(label, value) {
 }
 
 function renderPaletteDots() {
-  const container = document.getElementById('co-palette-dots');
+  const container = document.getElementById("co-palette-dots");
   if (!container) return;
 
-  // Paleta vem do localStorage (é preferência visual, não dado de negócio)
-  const data    = JSON.parse(localStorage.getItem('rh_data') || '{"companies":[]}');
-  const company = data.companies?.find(c => String(c.id) === String(App.session.companyId));
-  const palette = company?.palette;
+  const company = App.session.company;
 
-  if (!palette) {
-    container.innerHTML = `<span class="text-sm text-muted">Paleta padrão (Índigo)</span>`;
-    return;
-  }
-  [palette.primary, palette.primaryLight, palette.primaryDark, palette.secondary].forEach(c => {
-    const dot = document.createElement('div');
-    dot.title = c;
-    dot.style.cssText = `width:28px;height:28px;border-radius:50%;background:${c};border:2px solid rgba(255,255,255,0.1)`;
+  container.innerHTML = "";
+
+  const cores = [
+    company?.corPrincipal || "#4F46E5",
+    company?.corPrincipalClara || "#818CF8",
+    company?.corPrincipalEscura || "#3730A3",
+    company?.corSecundaria || "#0EA5E9"
+  ];
+
+  cores.forEach(cor => {
+    const dot = document.createElement("div");
+    dot.style.cssText = `
+      width:28px;
+      height:28px;
+      border-radius:50%;
+      background:${cor};
+      border:2px solid rgba(255,255,255,.15);
+    `;
     container.appendChild(dot);
   });
 }
