@@ -17,7 +17,7 @@ public class Funcionario {
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer idade;
+
     private String cpf;
 
     @Enumerated(EnumType.STRING)
@@ -56,8 +56,8 @@ public class Funcionario {
 
     public Funcionario(){}
 
-    public Funcionario(Integer idade, String cpf, Cargo cargo, String nome, BigDecimal salario, Departamento departamento, LocalDate dataDeContratacao, Boolean statusEmpregado, Empresa empresa) {
-        this.idade = idade;
+    public Funcionario(String cpf, Cargo cargo, String nome, BigDecimal salario, Departamento departamento, LocalDate dataDeContratacao, Boolean statusEmpregado, Empresa empresa) {
+
         this.cpf = cpf;
         this.cargo = cargo;
         this.nome = nome;
@@ -80,13 +80,7 @@ public class Funcionario {
         this.id = id;
     }
 
-    public Integer getIdade() {
-        return idade;
-    }
 
-    public void setIdade(Integer idade) {
-        this.idade = idade;
-    }
 
     public String getCpf() {
         return cpf;

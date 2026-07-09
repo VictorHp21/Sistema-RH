@@ -44,7 +44,7 @@ public class FuncionarioService {
         dto.setId(f.getId());
         dto.setNome(f.getNome());
         dto.setCpf(f.getCpf());
-        dto.setIdade(f.getIdade());
+
         dto.setSalario(f.getSalario());
         dto.setDataDeContratacao(f.getDataDeContratacao());
         dto.setStatusEmpregado(f.getStatusEmpregado());
@@ -150,11 +150,21 @@ public class FuncionarioService {
                     "O departamento informado não pertence à empresa.");
         }
 
+        if (dto.getSalario().compareTo(cargo.getSalarioMin()) < 0) {
+            throw new RuntimeException(
+                    "O salário do funcionário não pode ser menor que o salário mínimo do cargo.");
+        }
+
+        if (dto.getSalario().compareTo(cargo.getSalarioMax()) > 0) {
+            throw new RuntimeException(
+                    "O salário do funcionário não pode ser maior que o salário máximo do cargo.");
+        }
+
         Funcionario funcionario = new Funcionario();
 
         funcionario.setNome(dto.getNome());
         funcionario.setCpf(dto.getCpf());
-        funcionario.setIdade(dto.getIdade());
+
         funcionario.setSalario(dto.getSalario());
         funcionario.setDataDeContratacao(dto.getDataDeContratacao());
         funcionario.setStatusEmpregado(dto.getStatusEmpregado());
@@ -186,7 +196,6 @@ public class FuncionarioService {
 
         funcionarioExiste.setNome(dto.getNome());
         funcionarioExiste.setCpf(dto.getCpf());
-        funcionarioExiste.setIdade(dto.getIdade());
         funcionarioExiste.setSalario(dto.getSalario());
         funcionarioExiste.setDataDeContratacao(dto.getDataDeContratacao());
         funcionarioExiste.setStatusEmpregado(dto.getStatusEmpregado());

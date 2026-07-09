@@ -263,7 +263,10 @@ const App = {
   /* Função para criar cargo*/
 
   async createPosition(payload) {
-    const res = await fetch(`http://localhost:8080/cargos/${this.session.companyId}`, {
+
+    const departamentoId = document.getElementById("pos-dept").value;
+
+    const res = await fetch(`http://localhost:8080/cargos/${this.session.companyId}/${departamentoId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -275,7 +278,10 @@ const App = {
   },
 
   async updatePosition(id, payload) {
-    const res = await fetch(`http://localhost:8080/cargos/${id}`, {
+
+    const departamentoId = document.getElementById("pos-dept").value;
+
+    const res = await fetch(`http://localhost:8080/cargos/${id}/${departamentoId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -292,6 +298,65 @@ const App = {
     });
 
     if (!res.ok) throw new Error("Erro ao deletar cargo");
+  },
+
+  /*funções para funcionários */
+
+  async createEmployee(payload) {
+    const res = await fetch("http://localhost:8080/funcionarios", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const msg = await res.text();
+      throw new Error(msg || "Erro ao cadastrar funcionário");
+    }
+
+    return await res.json();
+  },
+
+  async updateEmployee(id, payload) {
+    const res = await fetch(`http://localhost:8080/funcionarios/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const msg = await res.text();
+      throw new Error(msg || "Erro ao atualizar funcionário");
+    }
+
+    return await res.json();
+  },
+
+  async deleteEmployee(id) {
+    const res = await fetch(`http://localhost:8080/funcionarios/${id}`, {
+      method: "DELETE"
+    });
+
+    if (!res.ok) {
+      const msg = await res.text();
+      throw new Error(msg || "Erro ao excluir funcionário");
+    }
+
+    return await res.text();
+  },
+
+  async getEmployee(id) {
+    const res = await fetch(`http://localhost:8080/funcionarios/${id}`);
+
+    if (!res.ok) {
+      throw new Error("Funcionário não encontrado");
+    }
+
+    return await res.json();
   },
 
   // funções para departamentos

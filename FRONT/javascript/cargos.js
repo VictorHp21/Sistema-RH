@@ -486,12 +486,12 @@ function renderCargoCard(cargo, index) {
 
       </div>
 
-      ${(cargo.salarioMinimo || cargo.salarioMaximo) ? `
+      ${(cargo.salarioMin || cargo.salarioMax) ? `
         <div class="pos-salary-range">
           💰
-          ${cargo.salarioMinimo ? App.formatCurrency(cargo.salarioMinimo) : "?"}
+          ${cargo.salarioMin ? App.formatCurrency(cargo.salarioMin) : "?"}
           —
-          ${cargo.salarioMaximo ? App.formatCurrency(cargo.salarioMaximo) : "?"}
+          ${cargo.salarioMax ? App.formatCurrency(cargo.salarioMax) : "?"}
         </div>
       ` : ""}
 
@@ -536,7 +536,7 @@ function renderCargoCard(cargo, index) {
       <div class="pos-card-footer">
 
         <span style="font-size:.78rem;color:var(--text-3)">
-          ${cargo.tipoContrato || "CLT"}
+          ${cargo.tipoDeContrato || "CLT"}
         </span>
 
         <div class="pos-card-actions"
@@ -581,8 +581,8 @@ function openPositionDetail(id) {
   const vagas = cargo.vagas || 0;
   const preenchidas = funcionarios.length;
 
-  const salarioMin = cargo.salarioMinimo;
-  const salarioMax = cargo.salarioMaximo;
+  const salarioMin = cargo.salarioMin;
+  const salarioMax = cargo.salarioMax;
 
   const statusMap = {
     ATIVO: { badge: "badge-success", label: "Ativo" },
@@ -610,7 +610,7 @@ function openPositionDetail(id) {
       </span>
 
       <span class="badge badge-secondary">
-        ${cargo.tipoContrato || "CLT"}
+        ${cargo.tipoDeContrato || "CLT"}
       </span>
 
     </div>
@@ -798,11 +798,11 @@ async function editPosition(id) {
   document.getElementById("btn-save-pos").textContent = "Salvar Alterações";
 
   document.getElementById("pos-name").value = cargo.nome;
-  document.getElementById("pos-salary-min").value = cargo.salarioMinimo ?? "";
-  document.getElementById("pos-salary-max").value = cargo.salarioMaximo ?? "";
+  document.getElementById("pos-salary-min").value = cargo.salarioMin ?? "";
+  document.getElementById("pos-salary-max").value = cargo.salarioMax ?? "";
   document.getElementById("pos-description").value = cargo.descricao ?? "";
   document.getElementById("pos-vacancies").value = cargo.vagas ?? 1;
-  document.getElementById("pos-contract").value = cargo.tipoContrato ?? "CLT";
+  document.getElementById("pos-contract").value = cargo.tipoDeContrato ?? "CLT";
 
   const dept = document.getElementById("pos-dept");
   if (dept) {
@@ -836,17 +836,13 @@ async function savePosition() {
   btn.textContent = "Salvando...";
 
   const payload = {
-    nome,
-    descricao: document.getElementById("pos-description").value,
-    salarioMinimo: Number(document.getElementById("pos-salary-min").value) || null,
-    salarioMaximo: Number(document.getElementById("pos-salary-max").value) || null,
-    vagas: Number(document.getElementById("pos-vacancies").value) || 1,
-    tipoContrato: document.getElementById("pos-contract").value,
-    status: document.querySelector("input[name='pos-status']:checked").value === "true",
-    departamentoId: document.getElementById("pos-dept")?.value
-      ? Number(document.getElementById("pos-dept").value)
-      : null,
-    empresaId: App.session.companyId
+     nome,
+  descricao: document.getElementById("pos-description").value,
+  salarioMin: Number(document.getElementById("pos-salary-min").value),
+  salarioMax: Number(document.getElementById("pos-salary-max").value),
+  vagas: Number(document.getElementById("pos-vacancies").value) || 1,
+  tipoDeContrato: document.getElementById("pos-contract").value,
+  status: document.querySelector("input[name='pos-status']:checked").value === "true"
   };
 
   try {

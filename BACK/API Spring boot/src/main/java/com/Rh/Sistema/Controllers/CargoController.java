@@ -18,9 +18,9 @@ public class CargoController {
         this.service = service;
     }
 
-    @PostMapping("/{empresaId}")
-    public Cargo cadastrar(@PathVariable Long empresaId, @RequestBody Cargo cargo){
-        return service.cadastrar(empresaId, cargo);
+    @PostMapping("/{empresaId}/{departamentoId}")
+    public Cargo cadastrar(@PathVariable Long empresaId, @PathVariable Long departamentoId, @RequestBody Cargo cargo){
+        return service.cadastrar(empresaId, departamentoId, cargo);
     }
 
     @GetMapping("/{empresaId}")
@@ -28,14 +28,15 @@ public class CargoController {
         return service.listar(empresaId);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/{departamentoId}")
     public ResponseEntity<Cargo> editarCargo(
             @PathVariable Long id,
+            @PathVariable Long departamentoId,
             @RequestBody Cargo cargo
     ){
 
         return ResponseEntity.ok(
-                service.editarCargo(id, cargo)
+                service.editarCargo(id, departamentoId, cargo)
         );
     }
 

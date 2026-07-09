@@ -8,7 +8,7 @@ public class FuncionarioResponseDTO {
     private Long id;
     private String nome;
     private String cpf;
-    private Integer idade;
+
 
     private BigDecimal salario;
     private LocalDate dataDeContratacao;
@@ -41,13 +41,6 @@ public class FuncionarioResponseDTO {
         this.nome = nome;
     }
 
-    public Integer getIdade() {
-        return idade;
-    }
-
-    public void setIdade(Integer idade) {
-        this.idade = idade;
-    }
 
     public String getCpf() {
         return cpf;

@@ -17,8 +17,14 @@ async function renderPage() {
 
   const employees = await App.getEmployees();
   const departments = await App.getDepartments();
+  const positions = await App.getPositions();
 
-  const deptOptions = departments.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+  const deptOptions = departments.map(d => `<option value="${d.id}">${d.nome}</option>`).join('');
+
+  
+  const positionOptions = positions.map(c => `
+    <option value="${c.id}">${c.nome}</option>
+  `).join("");
 
   const content = `
     <div class="page-header animate-in">
@@ -43,7 +49,7 @@ async function renderPage() {
         <option value="inativo" ${filterStatus === 'inativo' ? 'selected' : ''}>Inativo</option>
         <option value="afastado" ${filterStatus === 'afastado' ? 'selected' : ''}>Afastado</option>
       </select>
-      <select class="filter-select" id="emp-dept" onchange="filterDept=this.value; renderEmployeeList()">
+      <select class="filter-select" id="emp-filter-dept" onchange="filterDept=this.value; renderEmployeeList()">
         <option value="">Todos os depts.</option>
         ${deptOptions}
       </select>
@@ -99,13 +105,18 @@ async function renderPage() {
               <label class="form-label">CPF</label>
               <input type="text" id="emp-cpf" class="form-input" placeholder="000.000.000-00" />
             </div>
+
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Cargo</label>
-              <input type="text" id="emp-position" class="form-input" placeholder="Ex: Analista de TI" />
+              <select id="emp-position" class="form-select">
+                  <option value="">Selecione um cargo</option>
+                  ${positionOptions}
+              </select>
             </div>
+
             <div class="form-group">
               <label class="form-label">Departamento</label>
               <select id="emp-dept-select" class="form-select">
@@ -363,43 +374,34 @@ function handleEmpPhotoUpload(event) {
   reader.readAsDataURL(file);
 }
 
-function saveEmployee() {
+async function saveEmployee() {
   const name = document.getElementById('emp-name')?.value.trim();
   const email = document.getElementById('emp-email')?.value.trim();
   if (!name) { Toast.error('Nome é obrigatório'); return; }
 
-  const data = App.getData();
-  if (!data.employees) data.employees = [];
 
-  const employee = {
-    id: editingId || App.generateId(),
-    name,
-    email,
-    phone: document.getElementById('emp-phone')?.value.trim(),
-    cpf: document.getElementById('emp-cpf')?.value.trim(),
-    position: document.getElementById('emp-position')?.value.trim(),
-    departmentId: document.getElementById('emp-dept-select')?.value || null,
-    admission: document.getElementById('emp-admission')?.value,
-    salary: parseFloat(document.getElementById('emp-salary')?.value) || 0,
-    status: document.getElementById('emp-status-select')?.value || 'ativo',
-    contract: document.getElementById('emp-contract')?.value || 'CLT',
-    notes: document.getElementById('emp-notes')?.value.trim(),
-    photo: photoDataUrl || (editingId ? data.employees.find(e => e.id === editingId)?.photo : null),
-    companyId: App.session.companyId,
-    createdAt: editingId ? (data.employees.find(e => e.id === editingId)?.createdAt || new Date().toISOString()) : new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+  const payload = {
+    nome: document.getElementById("emp-name").value,
+    cpf: document.getElementById("emp-cpf").value,
+    salario: Number(document.getElementById("emp-salary").value),
+    dataDeContratacao: document.getElementById("emp-admission").value,
+    statusEmpregado: document.getElementById("emp-status-select").value === "ativo",
+    tipoDeContrato: document.getElementById("emp-contract").value,
+    observacoes: document.getElementById("emp-notes").value,
+    cargoId: Number(document.getElementById("emp-position").value),
+    departamentoId: Number(document.getElementById("emp-dept-select").value),
+    empresaId: App.session.companyId
   };
 
   if (editingId) {
-    const idx = data.employees.findIndex(e => e.id === editingId);
-    if (idx > -1) data.employees[idx] = employee;
-    Toast.success('Funcionário atualizado!');
+    await App.updateEmployee(editingId, payload);
+    Toast.success("Funcionário atualizado!");
   } else {
-    data.employees.push(employee);
-    Toast.success('Funcionário cadastrado!', employee.name);
+    await App.createEmployee(payload);
+    Toast.success("Funcionário cadastrado!");
   }
 
-  App.saveData(data);
+
   Modal.close('modal-employee');
   renderEmployeeList();
   // Update subtitle
@@ -414,7 +416,7 @@ async function editEmployee(id) {
   editingId = id;
   photoDataUrl = null;
   const employees = await App.getEmployees();
-  const e = employees.find(emp => emp.id === id);
+  const e = employees.find(emp => emp.id == id);
   if (!e) return;
 
   document.getElementById('modal-emp-title').textContent = 'Editar Funcionário';

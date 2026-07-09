@@ -8,7 +8,7 @@ import java.time.LocalDate;
 public class FuncionarioDTO {
     private String nome;
     private String cpf;
-    private Integer idade;
+
 
     private BigDecimal salario;
 
@@ -41,13 +41,6 @@ public class FuncionarioDTO {
         this.cpf = cpf;
     }
 
-    public Integer getIdade() {
-        return idade;
-    }
-
-    public void setIdade(Integer idade) {
-        this.idade = idade;
-    }
 
     public BigDecimal getSalario() {
         return salario;
