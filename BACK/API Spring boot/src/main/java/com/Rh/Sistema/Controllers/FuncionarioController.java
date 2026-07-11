@@ -49,7 +49,7 @@ public class FuncionarioController {
         );
     }
 
-    /*
+
     @DeleteMapping("/{id}")
     public String excluirFuncionario(@PathVariable Long id){
 
@@ -60,7 +60,7 @@ public class FuncionarioController {
                 : "Funcionário não encontrado ⚠️";
     }
 
-     */
+
 
     @PutMapping("{id}/valorAumento")
     public ResponseEntity<Funcionario> aumentarSalario(@PathVariable Long id, @RequestBody BigDecimal valor){

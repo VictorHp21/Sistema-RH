@@ -23,6 +23,9 @@ public class Funcionario {
     @Enumerated(EnumType.STRING)
     private TipoDeContrato tipoDeContrato;
 
+    private String telefone;
+    private String email;
+
     private String observacoes;
 
     @ManyToOne
@@ -56,18 +59,20 @@ public class Funcionario {
 
     public Funcionario(){}
 
-    public Funcionario(String cpf, Cargo cargo, String nome, BigDecimal salario, Departamento departamento, LocalDate dataDeContratacao, Boolean statusEmpregado, Empresa empresa) {
-
+    public Funcionario(String cpf, TipoDeContrato tipoDeContrato, String telefone, String email, String observacoes, Cargo cargo, Departamento departamento, String nome, BigDecimal salario, LocalDate dataDeContratacao, Boolean statusEmpregado, Empresa empresa) {
         this.cpf = cpf;
+        this.tipoDeContrato = tipoDeContrato;
+        this.telefone = telefone;
+        this.email = email;
+        this.observacoes = observacoes;
         this.cargo = cargo;
+        this.departamento = departamento;
         this.nome = nome;
         this.salario = salario;
-        this.departamento = departamento;
         this.dataDeContratacao = dataDeContratacao;
         this.statusEmpregado = statusEmpregado;
         this.empresa = empresa;
     }
-
 
     //getters e setters
 
@@ -104,6 +109,22 @@ public class Funcionario {
 
     public void setObservacoes(String observacoes) {
         this.observacoes = observacoes;
+    }
+
+    public String getTelefone() {
+        return telefone;
+    }
+
+    public void setTelefone(String telefone) {
+        this.telefone = telefone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Cargo getCargo() {

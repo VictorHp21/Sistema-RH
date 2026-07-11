@@ -103,7 +103,22 @@ select *from cargos;
 
 select *from departamentos;
 
+DELETE FROM departamentos
+WHERE id IN (11, 12);
+
 select *from funcionarios;
+
+select *from empresas;
+
+UPDATE empresas
+SET
+    nome = 'Tech Solutions',
+    cnpj = '12.345.678/0001-99',
+    endereco = 'Rua Exemplo, 123',
+    telefone = '(34)99999-9999',
+    email = 'contato@empresa.com',
+    segmento = 'Tecnologia'
+WHERE id = 1;
 
 UPDATE cargos
 SET excluido = false

@@ -20,6 +20,8 @@ window.selectCompany = function selectCompany(companyId) {
 
   Toast.success('Login realizado!', `Bem-vindo à ${company.nome}`);
 
+  
+
   setTimeout(() => {
     window.location.href = 'dashboard.html';
   }, 800);

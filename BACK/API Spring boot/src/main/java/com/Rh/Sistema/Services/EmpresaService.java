@@ -331,7 +331,12 @@ public class EmpresaService {
         return new EmpresaPreviewDTO(
                 empresa.getId(),
                 empresa.getNome(),
-                empresa.getCnpj()
+                empresa.getCnpj(),
+                empresa.getLogoUrl(),
+                empresa.getCorPrincipal(),
+                empresa.getCorPrincipalClara(),
+                empresa.getCorPrincipalEscura(),
+                empresa.getCorSecundaria()
         );
     }
 

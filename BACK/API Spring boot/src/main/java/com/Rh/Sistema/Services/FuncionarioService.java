@@ -171,6 +171,10 @@ public class FuncionarioService {
 
         funcionario.setTipoDeContrato(dto.getTipoDeContrato());
 
+        funcionario.setEmail(dto.getEmail());
+
+        funcionario.setTelefone(dto.getTelefone());
+
         funcionario.setObservacoes(dto.getObservacoes());
 
         funcionario.setCargo(cargo);
@@ -199,6 +203,9 @@ public class FuncionarioService {
         funcionarioExiste.setSalario(dto.getSalario());
         funcionarioExiste.setDataDeContratacao(dto.getDataDeContratacao());
         funcionarioExiste.setStatusEmpregado(dto.getStatusEmpregado());
+        funcionarioExiste.setObservacoes(dto.getObservacoes());
+        funcionarioExiste.setEmail(dto.getEmail());
+        funcionarioExiste.setTelefone(dto.getTelefone());
 
         funcionarioExiste.setCargo(cargo);
         funcionarioExiste.setDepartamento(departamento);
@@ -206,7 +213,7 @@ public class FuncionarioService {
         return funcionarioRepository.save(funcionarioExiste);
     }
 
-    /* Refazer este pois n deve apagar o funcionário do bd apenas alterar o statusDeContratação para inativo
+
 
     public boolean excluirFuncionario(Long id) {
 
@@ -223,8 +230,7 @@ public class FuncionarioService {
 
         return false;
     }
-    *
-     */
+
 
     //Regras de negocio
 

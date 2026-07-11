@@ -2,8 +2,20 @@ package com.Rh.Sistema.DTOs;
 
 public record EmpresaPreviewDTO(
         Long id,
+
         String nome,
-        String logoUrl
+
+        String cnpj,
+
+        String logoUrl,
+
+        String corPrincipal,
+
+        String corPrincipalClara,
+
+        String corPrincipalEscura,
+
+        String corSecundaria
 ) {
     @Override
     public Long id() {

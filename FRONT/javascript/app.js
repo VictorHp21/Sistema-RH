@@ -59,6 +59,8 @@ const App = {
       "rh_session",
       JSON.stringify(this.session)
     );
+
+    
   },
 
   logout() {
@@ -236,7 +238,7 @@ const App = {
 
       admission: e.dataDeContratacao,
       salary: e.salario,
-      status: e.statusEmpregado ? 'ativo' : 'inativo',
+      status: e.statusEmpregado ? 'ativo' : 'afastado',
     }));
   },
 

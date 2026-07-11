@@ -52,12 +52,17 @@ async function renderDashboard() {
     employees = await App.getEmployees();
     departments = await App.getDepartments();
 
-    active = employees.filter(e => e.statusEmpregado === true).length;
-    onLeave = employees.filter(e => e.statusEmpregado === false).length;
+    active = employees.filter(e => e.status === "ativo").length;
+
+    onLeave = employees.filter(e => e.status === "afastado").length;
 
     deptStats = departments.map(d => {
-      const count = employees.filter(e => e.departmentId === d.id).length;
-      return { name: d.name, count };
+      const count = employees.filter(e => e.departamentoId === d.id).length;
+
+      return {
+        name: d.nome,
+        count
+      };
     });
 
     maxDept = Math.max(...deptStats.map(d => d.count), 1);
@@ -180,7 +185,7 @@ function renderActivity(employees) {
       <div class="empty-state-desc">Cadastre funcionários para ver atividade aqui.</div>
     </div>`;
   }
-  const recent = [...employees].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+  const recent = [...employees].sort((a, b) => new Date(b.admission) - new Date(a.admission)).slice(0, 5);
   return `<div class="activity-list">
     ${recent.map(e => `
       <div class="activity-item">
@@ -188,8 +193,15 @@ function renderActivity(employees) {
           <div class="activity-dot ${e.status === 'ativo' ? 'success' : e.status === 'afastado' ? 'warning' : ''}"></div>
         </div>
         <div class="activity-content">
-          <div class="activity-title">${e.nome} adicionado(a)</div>
-          <div class="activity-time">${App.formatDate(e.createdAt)} · ${e.position || 'Sem cargo'}</div>
+          <div class="activity-title">
+              ${e.status === "afastado"
+      ? `${e.name} foi afastado(a)`
+      : `${e.name} foi admitido(a)`
+    }
+          </div>
+          <div class="activity-time">
+            ${App.formatDate(e.admission)} · ${e.cargoNome || "Sem cargo"}
+        </div>
         </div>
       </div>
     `).join('')}
