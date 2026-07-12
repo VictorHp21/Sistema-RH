@@ -651,4 +651,3 @@ window.addEventListener('DOMContentLoaded', () => {
   Toast.init();
   setActiveNav();
 });
-

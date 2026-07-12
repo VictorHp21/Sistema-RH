@@ -1,6 +1,7 @@
 package com.Rh.Sistema.Entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -51,6 +52,7 @@ public class Empresa {
     private List<Cargo> cargos;
 
     @OneToMany(mappedBy = "empresa")
+    @JsonIgnoreProperties({"empresa", "funcionarios", "gerente"})
     private List<Departamento> departamentos;
 
     public Empresa(){}

@@ -41,12 +41,11 @@ public class AuthService {
     // cadastro
 
     public UserRH register(RegisterRequest request){
+
         if(repository.findByEmail(request.getEmail()).isPresent()){
             throw new RuntimeException("Email já cadastrado");
         }
 
-        Empresa empresa = empresaRepository.findById(request.getEmpresaId())
-                .orElseThrow(()-> new RuntimeException("Empresa não encontrada"));
 
         UserRH usuario = new UserRH();
 
@@ -58,7 +57,10 @@ public class AuthService {
                 encoder.encode(request.getSenha())
         );
 
-        usuario.setEmpresa(empresa);
+
+        // usuário ainda não possui empresa
+        usuario.setEmpresa(null);
+
 
         return repository.save(usuario);
     }

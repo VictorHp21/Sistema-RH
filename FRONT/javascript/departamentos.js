@@ -185,7 +185,7 @@ function renderDeptGrid() {
     const icon = d.icone || d.icon || '🏢';
     const color = d.cor || d.color || DEPT_COLORS[0];
     const empCount = _funcionarios.filter(f =>
-      f.departamento?.id === d.id
+      f.departamentoNome === nome
     ).length;
 
     return `

@@ -5,6 +5,7 @@ let filterStatus = '';
 let filterDept = '';
 let editingId = null;
 let photoDataUrl = null;
+let firstLoad = true;
 
 window.addEventListener('DOMContentLoaded', () => {
   if (!App.requireAuth()) return;
@@ -17,7 +18,7 @@ async function renderPage() {
 
   const employees = await App.getEmployees();
 
-   console.log(employees); 
+  console.log(employees);
 
   const departments = await App.getDepartments();
   const positions = await App.getPositions();
@@ -65,10 +66,7 @@ async function renderPage() {
         <option value="">Todos os depts.</option>
         ${deptOptions}
       </select>
-      <div class="view-toggle">
-        <button class="view-btn ${currentView === 'cards' ? 'active' : ''}" onclick="setView('cards')" title="Cards">▦</button>
-        <button class="view-btn ${currentView === 'list' ? 'active' : ''}" onclick="setView('list')" title="Lista">☰</button>
-      </div>
+      
     </div>
 
     <div id="employee-list-container"></div>
@@ -230,27 +228,27 @@ async function getFilteredEmployees() {
   }
 
   if (filterDept) {
-  const dept = await App.getDepartments();
+    const dept = await App.getDepartments();
 
-  const departamento = dept.find(d => 
-    String(d.id) === String(filterDept)
-  );
-
-  if (departamento) {
-    list = list.filter(e =>
-      e.departamentoNome === departamento.nome
+    const departamento = dept.find(d =>
+      String(d.id) === String(filterDept)
     );
+
+    if (departamento) {
+      list = list.filter(e =>
+        e.departamentoNome === departamento.nome
+      );
+    }
   }
-}
 
   return list;
 }
 
 async function renderEmployeeList() {
 
-  App.showLoader("Carregando funcionários...");
+  
 
-  await new Promise(resolve => setTimeout(resolve, 120));
+  
 
   const employees = await getFilteredEmployees();
 
@@ -258,6 +256,15 @@ async function renderEmployeeList() {
 
     const container = document.getElementById('employee-list-container');
     if (!container) return;
+
+    container.innerHTML = `
+      <div class="employees-loading">
+          <div class="spinner"></div>
+          <span>Carregando funcionários...</span>
+      </div>
+      `;
+
+      await new Promise(resolve => setTimeout(resolve, 200));
 
     const employees = await getFilteredEmployees();
 
@@ -387,14 +394,11 @@ ${visibleEmployees.map((e, i) => `
       </div>`;
     }
 
+
   } catch (erro) {
 
     console.error(erro);
     Toast.error("Erro ao carregar funcionários.");
-
-  } finally {
-
-    App.hideLoader();
 
   }
 }
@@ -500,7 +504,7 @@ async function saveEmployee() {
   // Update subtitle
   const subtitle = document.querySelector('.page-subtitle');
 
-if (subtitle) {
+  if (subtitle) {
 
     const employees = await App.getEmployees();
 
@@ -509,8 +513,8 @@ if (subtitle) {
     const awayCount = employees.filter(e => e.status === "afastado").length;
 
     subtitle.textContent =
-        `${activeCount} ativo${activeCount !== 1 ? 's' : ''} · ${awayCount} afastado${awayCount !== 1 ? 's' : ''}`;
-}
+      `${activeCount} ativo${activeCount !== 1 ? 's' : ''} · ${awayCount} afastado${awayCount !== 1 ? 's' : ''}`;
+  }
 
 }
 

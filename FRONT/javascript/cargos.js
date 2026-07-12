@@ -31,6 +31,7 @@ async function carregarDados() {
 
   console.log(document.getElementById("global-loader"));
 
+
   App.showLoader("Carregando cargos...");
 
 
@@ -53,10 +54,12 @@ async function carregarDados() {
   } finally {
     App.hideLoader();
 
-    _cargos = cargos;
+    _cargos = cargos || [];
     // filtrar por status
     _departamentos = (departamentos || []).filter(d => d.status !== false);
-    _funcionarios = funcionarios;
+    _funcionarios = funcionarios || [];
+
+
   }
 }
 
@@ -75,14 +78,24 @@ function showLoading(on) {
   }
 }
 
+function countVagasPreenchidas() {
+
+  return _funcionarios.filter(func =>
+    func.cargo?.id
+  ).length;
+
+}
+
 /* --------------------------------------------------------
    RENDER DA PÁGINA
 -------------------------------------------------------- */
 function renderPositionsPage() {
 
-  const deptOptions = departamentos.map(d =>
+  const deptOptions = _departamentos.map(d =>
     `<option value="${d.id}">${d.nome}</option>`
   ).join('');
+
+  const preenchidas = countVagasPreenchidas();
 
   const totalOcupados = countOcupados();
 
@@ -91,7 +104,7 @@ function renderPositionsPage() {
       <div>
         <div class="page-title">Cargos</div>
         <div class="page-subtitle" id="pos-subtitle">
-          ${cargos.length} cargo${cargos.length !== 1 ? 's' : ''} cadastrado${cargos.length !== 1 ? 's' : ''}
+          ${_cargos.length} cargo${_cargos.length !== 1 ? 's' : ''} cadastrado${cargos.length !== 1 ? 's' : ''}
         </div>
       </div>
 
@@ -169,7 +182,7 @@ function renderPositionsPage() {
       ? `
                   <div class="dept-empty-notice">
                     <span>⚠ Nenhum departamento cadastrado.</span>
-                    <a href="departments.html" class="btn btn-ghost btn-sm">
+                    <a href="departamentos.html" class="btn btn-ghost btn-sm">
                       Criar departamento
                     </a>
                   </div>
@@ -312,35 +325,63 @@ function getDeptNome(id) {
 }
 
 function countOcupados() {
+
   return _cargos.filter(cargo =>
-    _funcionarios.some(func => func.cargo?.id === cargo.id)
+    _funcionarios.some(func =>
+      func.cargoNome === cargo.nome
+    )
   ).length;
+
 }
 
 function getFuncionariosNoCargo(cargoId) {
+
+  const cargo = _cargos.find(c => c.id == cargoId);
+
+  if (!cargo) return [];
+
   return _funcionarios.filter(func =>
-    func.cargo?.id === cargoId
+    func.cargoNome === cargo.nome
   );
+
+}
+
+function countFuncionariosAlocados() {
+
+  return _funcionarios.filter(func =>
+    func.cargo?.id || func.cargoId
+  ).length;
+
 }
 
 function updateStats() {
-  const ocupados = countOcupados();
-  const total = _cargos.length;
 
-  document.getElementById("stat-total").textContent = total;
-  document.getElementById("stat-ocupados").textContent = ocupados;
-  document.getElementById("stat-vagas").textContent = total - ocupados;
+  const totalCargos = _cargos.length;
 
-  const sub = document.getElementById("pos-subtitle");
-  sub.textContent = `${total} cargo${total !== 1 ? "s" : ""} cadastrado${total !== 1 ? "s" : ""}`;
-}
+  const cargosOcupados = _cargos.filter(cargo =>
+    _funcionarios.some(func =>
+      func.cargoNome === cargo.nome
+    )
+  ).length;
 
-function getLevels() {
-  return [...new Set(
-    cargos
-      .map(c => c.nivel || c.level)
-      .filter(Boolean)
-  )].sort();
+
+  const funcionariosAlocados = _funcionarios.filter(func =>
+    func.cargoId
+  ).length;
+
+
+  document.getElementById("stat-total").textContent =
+    totalCargos;
+
+
+  document.getElementById("stat-ocupados").textContent =
+    cargosOcupados;
+
+
+  document.getElementById("stat-vagas").textContent =
+    totalCargos - cargosOcupados;
+
+
 }
 
 /* --------------------------------------------------------
@@ -428,6 +469,8 @@ function renderCargoCard(cargo, index) {
 
   const funcionarios = getFuncionariosNoCargo(cargo.id);
 
+  const totalFuncionarios = funcionarios.length;
+
   const preenchidas = funcionarios.length;
 
   const emAberto = Math.max(0, vagas - preenchidas);
@@ -471,6 +514,10 @@ function renderCargoCard(cargo, index) {
           <div class="pos-dept">
             🏢 ${deptNome}
           </div>
+
+          <div style="font-size:.78rem;color:var(--text-3)">
+ 👥 ${totalFuncionarios} funcionário${totalFuncionarios !== 1 ? 's' : ''}
+</div>
 
         </div>
 
@@ -683,7 +730,7 @@ function openPositionDetail(id) {
                 <div style="font-weight:600">${f.nome}</div>
 
                 <div style="font-size:.75rem;color:var(--text-3)">
-                  ${f.departamento?.nome || "Sem departamento"}
+                  ${f.departamentoNome || "Sem departamento"}
                 </div>
               </div>
 
@@ -763,23 +810,32 @@ function openNewPosition() {
     'pos-name',
     'pos-salary-min',
     'pos-salary-max',
-    'pos-description'
+    'pos-description',
+    'pos-vacancies',
+    'pos-dept',
+    'pos-contract'
   ];
 
   fieldsToClear.forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.value = '';
+    if (el) {
+      el.value = '';
+    }
   });
 
-  document.getElementById('pos-vacancies').value = '1';
-  document.getElementById('pos-dept').value = '';
-  document.getElementById('pos-contract').value = 'CLT';
+  const vacancies = document.getElementById('pos-vacancies');
+  if (vacancies) vacancies.value = '1';
+
+  const contract = document.getElementById('pos-contract');
+  if (contract) contract.value = 'CLT';
+
 
   const radio = document.querySelector(
-    'input[name="pos-status"][value="ATIVO"]'
+    'input[name="pos-status"][value="true"]'
   );
 
   if (radio) radio.checked = true;
+
 
   Modal.open('modal-position');
 }
@@ -810,8 +866,10 @@ async function editPosition(id) {
   }
 
   const radio = document.querySelector(
-    `input[name="pos-status"][value="${cargo.status}"]`
+    'input[name="pos-status"][value="true"]'
   );
+
+  if (radio) radio.checked = true;
 
   if (radio) radio.checked = true;
 
@@ -836,13 +894,13 @@ async function savePosition() {
   btn.textContent = "Salvando...";
 
   const payload = {
-     nome,
-  descricao: document.getElementById("pos-description").value,
-  salarioMin: Number(document.getElementById("pos-salary-min").value),
-  salarioMax: Number(document.getElementById("pos-salary-max").value),
-  vagas: Number(document.getElementById("pos-vacancies").value) || 1,
-  tipoDeContrato: document.getElementById("pos-contract").value,
-  status: document.querySelector("input[name='pos-status']:checked").value === "true"
+    nome,
+    descricao: document.getElementById("pos-description").value,
+    salarioMin: Number(document.getElementById("pos-salary-min").value),
+    salarioMax: Number(document.getElementById("pos-salary-max").value),
+    vagas: Number(document.getElementById("pos-vacancies").value) || 1,
+    tipoDeContrato: document.getElementById("pos-contract").value,
+    status: document.querySelector("input[name='pos-status']:checked").value === "true"
   };
 
   try {

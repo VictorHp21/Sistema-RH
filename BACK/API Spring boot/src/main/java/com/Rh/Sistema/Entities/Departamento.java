@@ -2,6 +2,7 @@ package com.Rh.Sistema.Entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -23,6 +24,11 @@ public class Departamento {
 
     @ManyToOne
     @JoinColumn(name = "gerente_id")
+    @JsonIgnoreProperties({
+            "cargo",
+            "departamento",
+            "empresa"
+    })
     private Funcionario gerente;
 
     private String icone;

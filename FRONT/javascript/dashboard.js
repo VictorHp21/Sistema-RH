@@ -2,7 +2,7 @@
 
 App.loadSession();
 
-
+let activeDepartments = [];
 
 window.addEventListener("DOMContentLoaded", () => {
   if (!App.requireAuth()) return;
@@ -52,12 +52,21 @@ async function renderDashboard() {
     employees = await App.getEmployees();
     departments = await App.getDepartments();
 
+
+
+    activeDepartments = departments.filter(
+      d => d.status === true || d.status == null
+    );
+
     active = employees.filter(e => e.status === "ativo").length;
 
     onLeave = employees.filter(e => e.status === "afastado").length;
 
-    deptStats = departments.map(d => {
-      const count = employees.filter(e => e.departamentoId === d.id).length;
+    deptStats = activeDepartments.map(d => {
+
+      const count = employees.filter(
+        e => e.departamentoNome === d.nome
+      ).length;
 
       return {
         name: d.nome,
@@ -102,7 +111,7 @@ async function renderDashboard() {
       </div>
       <div class="stat-card">
         <div class="stat-icon secondary">🏢</div>
-        <div class="stat-value">${departments.length}</div>
+        <div class="stat-value">${activeDepartments.length}</div>
         <div class="stat-label">Departamentos</div>
       </div>
     </div>
@@ -120,7 +129,7 @@ async function renderDashboard() {
         <span class="quick-action-icon">💼</span>
         <div class="quick-action-label">Cargos</div>
       </a>
-      <a href="company.html" class="quick-action" style="animation-delay:0.2s">
+      <a href="empresa.html" class="quick-action" style="animation-delay:0.2s">
         <span class="quick-action-icon">⚙</span>
         <div class="quick-action-label">Empresa</div>
       </a>

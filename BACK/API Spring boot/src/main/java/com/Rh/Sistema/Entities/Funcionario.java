@@ -30,11 +30,18 @@ public class Funcionario {
 
     @ManyToOne
     @JoinColumn(name = "cargo_id")
+    @JsonIgnoreProperties({
+            "departamento",
+            "empresa"
+    })
     private Cargo cargo;
 
     @ManyToOne
     @JoinColumn(name = "departamento_id")
-    @JsonIgnore
+    @JsonIgnoreProperties({
+            "gerente",
+            "funcionarios"
+    })
     private Departamento departamento;
 
 

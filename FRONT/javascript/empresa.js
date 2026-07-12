@@ -420,3 +420,13 @@ function injectCompanyStyles() {
   `;
   document.head.appendChild(style);
 }
+
+function contarCargosAtivos() {
+
+  if (!_empresa?.cargos) return 0;
+
+  return _empresa.cargos.filter(cargo =>
+    cargo.status === true
+  ).length;
+
+}

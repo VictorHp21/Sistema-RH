@@ -238,43 +238,81 @@ function openChooseCompany(companies) {
 }
 
 /* ==================== REGISTER ==================== */
-function handleRegister() {
+async function handleRegister() {
+
   const name = document.getElementById('reg-name').value.trim();
   const email = document.getElementById('reg-email').value.trim();
   const pass = document.getElementById('reg-pass').value;
   const role = document.getElementById('reg-role').value.trim();
 
+
   if (!name || !email || !pass) {
     Toast.error('Preencha todos os campos obrigatórios');
     return;
   }
+
+
   if (pass.length < 6) {
-    Toast.error('Senha muito curta', 'Mínimo de 6 caracteres.');
+    Toast.error('Senha muito curta');
     return;
   }
 
-  const data = App.getData();
-  if (data.users?.find(u => u.email === email)) {
-    Toast.error('E-mail já cadastrado', 'Tente fazer login.');
-    return;
+
+  try {
+
+    const response = await fetch(
+      "http://localhost:8080/auth/register",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+
+          nome:name,
+          email:email,
+          senha:pass,
+          role:role || "Administrador"
+
+        })
+      }
+    );
+
+
+    if(!response.ok){
+
+      const erro = await response.text();
+      Toast.error(erro);
+      return;
+
+    }
+
+
+    const user = await response.json();
+
+
+    currentUser = user;
+
+
+    Toast.success(
+      "Conta criada!",
+      "Agora cadastre sua empresa."
+    );
+
+
+    setTimeout(()=>{
+      openCreateCompany();
+    },600);
+
+
+
+  } catch(error){
+
+    console.error(error);
+    Toast.error("Erro ao criar usuário");
+
   }
 
-  const user = {
-    id: App.generateId(),
-    name,
-    email,
-    password: pass,
-    role: role || 'Administrador',
-    createdAt: new Date().toISOString(),
-  };
-
-  if (!data.users) data.users = [];
-  data.users.push(user);
-  App.saveData(data);
-
-  currentUser = user;
-  Toast.success('Conta criada!', 'Agora cadastre sua empresa.');
-  setTimeout(() => openCreateCompany(), 600);
 }
 
 /* ==================== CREATE COMPANY ==================== */
@@ -315,7 +353,9 @@ async function handleCreateCompany() {
 
     const company = await response.json();
 
-    App.session.companyId = company.id;
+    console.log("EMPRESA CRIADA:", company);
+
+    App.session.companyId = company.id || company.Id;
     App.session.userId = currentUser.id;
     App.session.company = company;
     App.session.user = currentUser;
@@ -339,5 +379,3 @@ async function handleCreateCompany() {
 }
 
 // onde a empresa é criada (envio do form)
-
-
