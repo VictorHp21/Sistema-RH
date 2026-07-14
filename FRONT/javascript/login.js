@@ -335,6 +335,7 @@ async function handleCreateCompany() {
   formData.append("nome", name);
   formData.append("cnpj", cnpj);
   formData.append("status", true);
+  formData.append("userId", currentUser.id);
 
   const file = document.getElementById("logo-input").files[0];
   if (file) {

@@ -30,11 +30,20 @@ public class EmpresaController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Empresa>cadastrarEmpresa(@RequestParam String nome,
-                                                   @RequestParam String cnpj,
-                                                   @RequestParam Boolean status,
-                                                   @RequestParam(required = false) MultipartFile logo){
-        Empresa empresa = service.cadastrarEmpresa(nome, cnpj, status, logo);
+    public ResponseEntity<Empresa> cadastrarEmpresa(
+            @RequestParam String nome,
+            @RequestParam String cnpj,
+            @RequestParam Boolean status,
+            @RequestParam Long userId,
+            @RequestParam(required = false) MultipartFile logo){
+
+        Empresa empresa = service.cadastrarEmpresa(
+                nome,
+                cnpj,
+                status,
+                userId,
+                logo);
+
         return ResponseEntity.ok(empresa);
     }
 

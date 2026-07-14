@@ -139,14 +139,14 @@ async function renderDashboard() {
       <div class="card animate-in">
         <div class="card-header">
           <span class="card-title">Funcionários por Departamento</span>
-          <a href="departmentos.html" class="btn btn-ghost btn-sm">Ver todos</a>
+          <a href="departamentos.html" class="btn btn-ghost btn-sm">Ver todos</a>
         </div>
         ${deptStats.length === 0
       ? `<div class="empty-state">
               <div class="empty-state-icon">🏢</div>
               <div class="empty-state-title">Nenhum departamento</div>
               <div class="empty-state-desc">Crie departamentos para organizar sua equipe.</div>
-              <a href="departments.html" class="btn btn-primary btn-sm">Criar departamento</a>
+              <a href="departamentos.html" class="btn btn-primary btn-sm">Criar departamento</a>
             </div>`
       : `<div class="dept-bars">
               ${deptStats.map(d => `

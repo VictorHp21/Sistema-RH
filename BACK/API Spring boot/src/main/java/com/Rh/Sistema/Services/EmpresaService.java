@@ -86,18 +86,32 @@ public class EmpresaService {
                 .orElseThrow(() -> new RuntimeException("Empresa não encontrada"));
     }
 
-    public Empresa cadastrarEmpresa(String nome, String cnpj, Boolean status, MultipartFile logo){
+    public Empresa cadastrarEmpresa(String nome,
+                                    String cnpj,
+                                    Boolean status,
+                                    Long userId,
+                                    MultipartFile logo) {
+
         Empresa empresa = new Empresa();
+
         empresa.setNome(nome);
         empresa.setCnpj(cnpj);
         empresa.setStatus(status);
 
         if (logo != null && !logo.isEmpty()) {
-            String url = imageUploadService.uploadImage(logo);
-            empresa.setLogoUrl(url);
+            empresa.setLogoUrl(imageUploadService.uploadImage(logo));
         }
 
-        return repository.save(empresa);
+        empresa = repository.save(empresa);
+
+        UserRH usuario = userRHRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        usuario.setEmpresa(empresa);
+
+        userRHRepository.save(usuario);
+
+        return empresa;
     }
 
     public List<Empresa> listarTodas() {
@@ -327,6 +341,10 @@ public class EmpresaService {
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         Empresa empresa = user.getEmpresa();
+
+        if (empresa == null) {
+            throw new RuntimeException("Usuário não possui empresa cadastrada.");
+        }
 
         return new EmpresaPreviewDTO(
                 empresa.getId(),
