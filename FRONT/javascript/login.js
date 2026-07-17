@@ -1,4 +1,4 @@
-/* ==================== LOGIN PAGE LOGIC ==================== */
+
 
 let currentUser = null;
 let logoDataUrl = null;
@@ -27,14 +27,14 @@ window.selectCompany = function selectCompany(companyId) {
   }, 800);
 }
 
-// On load: render company chips and handle indicator
+
 window.addEventListener('DOMContentLoaded', () => {
 
   updateTabIndicator('login');
 
   carregarEmpresasPreview();
 
-  // If already logged in, redirect
+  
   if (App.loadSession()) {
 
     console.log("Sessão antes de salvar:", App.session);
@@ -58,7 +58,7 @@ async function carregarEmpresasPreview() {
   `;
 
   try {
-    const response = await fetch("http://localhost:8080/empresa");
+    const response = await fetch("https://sistema-rh-gs34.onrender.com/empresa");
 
 
     if (!response.ok) {
@@ -154,7 +154,7 @@ async function handleLogin() {
   spinner.style.display = 'inline-block';
 
   try {
-    const response = await fetch('http://localhost:8080/auth/login', {
+    const response = await fetch('https://sistema-rh-gs34.onrender.com/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -183,7 +183,7 @@ async function handleLogin() {
     // PEGAR EMPRESAS DO USUÁRIO
     // =========================
     const companyRes = await fetch(
-      `http://localhost:8080/empresa/user/${encodeURIComponent(email)}`
+      `https://sistema-rh-gs34.onrender.com/empresa/user/${encodeURIComponent(email)}`
     );
 
     const company = await companyRes.json();
@@ -261,7 +261,7 @@ async function handleRegister() {
   try {
 
     const response = await fetch(
-      "http://localhost:8080/auth/register",
+      "https://sistema-rh-gs34.onrender.com/auth/register",
       {
         method:"POST",
         headers:{
@@ -343,7 +343,7 @@ async function handleCreateCompany() {
   }
 
   try {
-    const response = await fetch("http://localhost:8080/empresa", {
+    const response = await fetch("https://sistema-rh-gs34.onrender.com/empresa", {
       method: "POST",
       body: formData
     });

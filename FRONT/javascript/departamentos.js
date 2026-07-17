@@ -108,7 +108,7 @@ function renderDeptPage() {
               <option value="">Selecione um gerente</option>
               ${_funcionarios.map(f => `
                 <option value="${f.id}">
-                  ${f.nome}
+                  ${f.name}
                 </option>
               `).join('')}
             </select>
@@ -242,7 +242,7 @@ function preencherSelectGerentes() {
   select.innerHTML = `
     <option value="">Selecione um gerente</option>
     ${_funcionarios.map(f => `
-      <option value="${f.id}">${f.nome}</option>
+      <option value="${f.id}">${f.name}</option>
     `).join('')}
   `;
 }

@@ -72,7 +72,7 @@ const App = {
   async getCompanySummary() {
 
     const res = await fetch(
-      `http://localhost:8080/empresa/${this.session.companyId}/resumo`
+      `https://sistema-rh-gs34.onrender.com/empresa/${this.session.companyId}/resumo`
     );
 
     if (!res.ok)
@@ -81,7 +81,7 @@ const App = {
     return await res.json();
   },
 
-  // Company palette & logo (stored per company inside companies array)
+ 
   getCompanyTheme() {
     const data = this.getData();
     const c = data.companies.find(c => c.id === this.session.companyId);
@@ -134,7 +134,7 @@ const App = {
     });
   },
 
-  // Guard - redirect to login if no session
+  
   requireAuth() {
     if (!this.loadSession()) {
       window.location.href = '/paginas/index.html';
@@ -172,7 +172,7 @@ const App = {
   // empresa
 
   async updateCompany(id, payload) {
-    const res = await fetch(`http://localhost:8080/empresa/${this.session.companyId}`, {
+    const res = await fetch(`https://sistema-rh-gs34.onrender.com/empresa/${this.session.companyId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"
@@ -218,7 +218,7 @@ const App = {
   },
 
   async getEmployees() {
-    const res = await fetch(`http://localhost:8080/empresa/${this.session.companyId}/funcionarios`);
+    const res = await fetch(`https://sistema-rh-gs34.onrender.com/empresa/${this.session.companyId}/funcionarios`);
     const data = await res.json();
 
     const list = Array.isArray(data)
@@ -244,7 +244,7 @@ const App = {
 
   async getDepartments() {
     const res = await fetch(
-      `http://localhost:8080/empresa/${this.session.companyId}/departamentos`
+      `https://sistema-rh-gs34.onrender.com/empresa/${this.session.companyId}/departamentos`
     );
 
     return await res.json();
@@ -252,7 +252,7 @@ const App = {
 
   async getPositions() {
     const res = await fetch(
-      `http://localhost:8080/empresa/${this.session.companyId}/cargos`
+      `https://sistema-rh-gs34.onrender.com/empresa/${this.session.companyId}/cargos`
     );
 
     if (!res.ok) {
@@ -268,7 +268,7 @@ const App = {
 
     const departamentoId = document.getElementById("pos-dept").value;
 
-    const res = await fetch(`http://localhost:8080/cargos/${this.session.companyId}/${departamentoId}`, {
+    const res = await fetch(`https://sistema-rh-gs34.onrender.com/cargos/${this.session.companyId}/${departamentoId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -283,7 +283,7 @@ const App = {
 
     const departamentoId = document.getElementById("pos-dept").value;
 
-    const res = await fetch(`http://localhost:8080/cargos/${id}/${departamentoId}`, {
+    const res = await fetch(`https://sistema-rh-gs34.onrender.com/cargos/${id}/${departamentoId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -295,7 +295,7 @@ const App = {
   },
 
   async deletePosition(id) {
-    const res = await fetch(`http://localhost:8080/cargos/${id}`, {
+    const res = await fetch(`https://sistema-rh-gs34.onrender.com/cargos/${id}`, {
       method: "DELETE"
     });
 
@@ -305,7 +305,7 @@ const App = {
   /*funções para funcionários */
 
   async createEmployee(payload) {
-    const res = await fetch("http://localhost:8080/funcionarios", {
+    const res = await fetch("https://sistema-rh-gs34.onrender.com/funcionarios", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -322,7 +322,7 @@ const App = {
   },
 
   async updateEmployee(id, payload) {
-    const res = await fetch(`http://localhost:8080/funcionarios/${id}`, {
+    const res = await fetch(`https://sistema-rh-gs34.onrender.com/funcionarios/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"
@@ -339,7 +339,7 @@ const App = {
   },
 
   async deleteEmployee(id) {
-    const res = await fetch(`http://localhost:8080/funcionarios/${id}`, {
+    const res = await fetch(`https://sistema-rh-gs34.onrender.com/funcionarios/${id}`, {
       method: "DELETE"
     });
 
@@ -352,7 +352,7 @@ const App = {
   },
 
   async getEmployee(id) {
-    const res = await fetch(`http://localhost:8080/funcionarios/${id}`);
+    const res = await fetch(`https://sistema-rh-gs34.onrender.com/funcionarios/${id}`);
 
     if (!res.ok) {
       throw new Error("Funcionário não encontrado");
@@ -365,7 +365,7 @@ const App = {
 
 
   async createDepartament(payload) {
-    const res = await fetch(`http://localhost:8080/departamentos/${this.session.companyId}`, {
+    const res = await fetch(`https://sistema-rh-gs34.onrender.com/departamentos/${this.session.companyId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -377,7 +377,7 @@ const App = {
   },
 
   async updateDepartament(id, payload) {
-    const res = await fetch(`http://localhost:8080/departamentos/${id}`, {
+    const res = await fetch(`https://sistema-rh-gs34.onrender.com/departamentos/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -389,7 +389,7 @@ const App = {
   },
 
   async deleteDepartament(id) {
-    const res = await fetch(`http://localhost:8080/departamentos/${id}`, {
+    const res = await fetch(`https://sistema-rh-gs34.onrender.com/departamentos/${id}`, {
       method: "DELETE"
     });
 
@@ -461,17 +461,17 @@ const Modal = {
   },
 };
 
-// Close modal on overlay click
+
 document.addEventListener('click', e => {
   if (e.target.classList.contains('modal-overlay')) Modal.closeAll();
 });
 
-// Escape key
+
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') Modal.closeAll();
 });
 
-/* ==================== PALETTE PICKER ==================== */
+
 const PalettePicker = {
   defaultPresets: [
     { name: 'Índigo (padrão)', primary: '#4F46E5', primaryLight: '#818CF8', primaryDark: '#3730A3', secondary: '#0EA5E9' },
@@ -629,7 +629,7 @@ const PalettePicker = {
 
 
 
-/* ==================== SIDEBAR TOGGLE ==================== */
+/* ==================== SIDEBAR  ==================== */
 function togglePaletteSidebar() {
   const panel = document.getElementById('palette-sidebar');
   if (panel) {
