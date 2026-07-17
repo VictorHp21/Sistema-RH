@@ -66,7 +66,7 @@ const App = {
   logout() {
     sessionStorage.removeItem('rh_session');
     this.session = { companyId: null, userId: null, company: null, user: null };
-    window.location.href = '/paginas/index.html';
+    window.location.href = 'index.html';
   },
 
   async getCompanySummary() {
