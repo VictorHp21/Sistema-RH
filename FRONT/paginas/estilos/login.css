@@ -1,5 +1,5 @@
 :root{
-  --cor1: rgba(124, 58, 237, 1); /*roxo*/
+  --cor1: rgb(99, 4, 182); /*roxo*/
   --cor2: rgba(15, 15, 15, 1); 
   --cor3: rgba(30, 30, 30, 1);
   --cor4: rgba(255, 255, 255, 1);
@@ -121,7 +121,7 @@
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, var(--cor1), purple);
+  background: var(--cor1);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -227,7 +227,7 @@
   max-width: 400px;
 }
 
-/* ==================== TABS ==================== */
+
 .auth-tabs {
   display: flex;
   background: var(--bg-3);
@@ -268,7 +268,7 @@
 
 .tab-indicator.right { left: calc(50%); }
 
-/* ==================== FORM AREA ==================== */
+
 .auth-form {
   display: flex;
   flex-direction: column;
@@ -317,7 +317,7 @@
 }
 .auth-switch a:hover { color: var(--text-1); }
 
-/* ==================== COMPANY LIST MODAL ==================== */
+
 .company-list-modal {
   display: flex;
   flex-direction: column;
@@ -383,7 +383,7 @@
 .logo-upload-text { font-weight: 600; color: var(--text-2); font-size: 0.9rem; }
 .logo-upload-sub { font-size: 0.78rem; color: var(--text-3); }
 
-/* ==================== RESPONSIVE ==================== */
+
 @media (max-width: 900px) {
   .auth-left { display: none; }
   .auth-right { width: 100%; border-left: none; background: var(--bg); }
