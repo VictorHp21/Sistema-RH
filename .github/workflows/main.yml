@@ -1,0 +1,18 @@
+
+name: Manter banco ativo
+
+on:
+  schedule:
+    - cron: "37 12 * * *"
+  workflow_dispatch:
+
+jobs:
+  acessar-site:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Acessar site
+        run: |
+          curl --fail --silent --show-error \
+            --max-time 30 \
+            "https://sistema-rh-five.vercel.app"
